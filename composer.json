@@ -1,0 +1,28 @@
+{
+    "name": "FFMVC",
+    "description": "Fat-Free Framework f3-boilerplate FFMVC Shared Libraries",
+    "keywords": ["php", "api", "keycom", "keycom f3", "f3"],
+    "homepage": "http://git.keycom.co.uk/keycom/system",
+    "license": "GPL-3.0+",
+    "type": "application",
+    "authors": [
+        {
+            "name": "Vijay Mahrra",
+            "email": "vijay.mahrra@keycom.co.uk",
+            "homepage": "http://about.me/vijay.mahrra",
+            "role": "Developer"
+        }
+    ],
+    "config": {
+        "vendor-dir": "."
+    },
+    "autoload": {
+        "classmap": ["Models", "Helpers", "App", "CLI", "Controllers"]
+    },
+    "require": {
+        "php": ">=5.4.4"
+    },
+    "suggest": {
+        "php": ">=5.6.0"
+    }
+}

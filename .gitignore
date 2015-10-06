@@ -1,0 +1,23 @@
+# Include your project-specific ignores in this file
+# Read about how to use .gitignore:
+# Read about how to use .gitignore: https://help.github.com/articles/ignoring-files
+# https://help.github.com/articles/ignoring-files
+.DS_Store
+*.DS_Store
+*.bak
+*.lock
+*.old
+*.orig
+*.out
+*.swp
+*.tmp
+*~
+.DS_Store
+.svn
+/*.cache
+/*.puo
+/nbproject
+/php.ini
+logs
+nbproject
+.vsphpignore
