@@ -13,6 +13,8 @@ class Index extends Base
 {
     final public function index($f3, $params)
     {
-        echo "CLI\n"."Hello World!\n";
+        $cli = $this->cli;
+        $cli->shoutBold(__METHOD__);
+        $cli->shout("Hello World!");
     }
 }

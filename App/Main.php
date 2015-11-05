@@ -90,9 +90,13 @@ class Main extends \Prefab
                     if (count($pair) == 0) {
                         continue;
                     }
-                    list($k, $v) = preg_split("/=/", $pair);
-                    if (!empty($k) && !empty($v)) {
-                        $_GET[$k] = $v;
+                    $val = preg_split("/=/", $pair);
+                    if (!empty($val) && count($val) == 2) {
+                        $k = $val[0];
+                        $v = $val[1];
+                        if (!empty($k) && !empty($v)) {
+                            $_GET[$k] = $v;
+                        }
                     }
                 }
                 $f3->set('GET', $_GET);

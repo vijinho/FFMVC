@@ -20,7 +20,8 @@
         "classmap": ["Models", "Helpers", "App", "CLI", "Controllers"]
     },
     "require": {
-        "php": ">=5.4.4"
+        "php": ">=5.4.4",
+        "league/climate": "^3.2"
     },
     "suggest": {
         "php": ">=5.6.0"

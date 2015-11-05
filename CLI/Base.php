@@ -27,6 +27,14 @@ abstract class Base
     protected $logger;
 
     /**
+     * Use climate by default
+     *
+     * @var object cli-handling class
+     * @link http://climate.thephpleague.com/
+     */
+    protected $cli;
+
+    /**
      * initialize.
      */
     public function __construct($params = array())
@@ -47,5 +55,23 @@ abstract class Base
         if (empty($this->logger)) {
             $this->logger = &$f3->ref('logger');
         }
+        if (empty($this->cli)) {
+            $this->cli = new \League\CLImate\CLImate;
+            $this->cli->clear();
+        }
+    }
+
+    public function beforeRoute($f3, $params)
+    {
+        $cli = $this->cli;
+        $cli->blackBoldUnderline("CLI Script");
+    }
+
+    public function afterRoute($f3, $params)
+    {
+        $cli = $this->cli;
+        $cli->shout('Finished.');
+        $cli->info('Script executed in ' . round(microtime(true) - $f3->get('TIME'), 3) . ' seconds.');
+        $cli->info('Memory used ' . round(memory_get_peak_usage() / 1024 / 1024, 2) . ' MB.');
     }
 }
