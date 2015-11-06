@@ -17,4 +17,32 @@ class Index extends Base
         $cli->shoutBold(__METHOD__);
         $cli->shout("Hello World!");
     }
+
+    // example to test if already running
+    // run cli.php '/index/running' in two different terminals
+    final public function running($f3, $params)
+    {
+        $cli = $this->cli;
+        $cli->shoutBold(__METHOD__);
+
+        // use process id for log messages
+        $mypid = getmypid();
+        $pid = $mypid['PID'];
+        $log = &$f3->ref('logger');
+        $msg = $pid . ': Starting...';
+        $cli->shout($msg);
+        $log->write($msg);
+
+        // check if already running, quit if so
+        exec("ps auxww | grep -i index/running | grep -v grep", $ps);
+        if (count($ps) > 1) {
+            $msg = $pid . ': Already running! Quitting.';
+            $cli->shout($msg);
+            $log->write($ps[0]);
+            $log->write($msg);
+            return false;
+        }
+        sleep(10);
+    }
+
 }
