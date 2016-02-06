@@ -10,7 +10,7 @@ namespace FFMVC\Helpers;
  * @copyright (c) Copyright 2015 Vijay Mahrra
  * @license GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
-class String extends \Prefab
+class Str extends \Prefab
 {
     /**
      * generate random string
