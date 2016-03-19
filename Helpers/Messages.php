@@ -58,9 +58,11 @@ class Messages extends \Prefab
             $f3 = \Base::instance();
             // save persistent messages
             $sessionify = $f3->get('sessionify_messages');
+            $getted = $f3->get('messages_has_been_getted');
             $messages = $f3->get('messages');
-            $f3->set('SESSION.messages',
-                empty($sessionify) ? null : $messages);
+            if($sessonify)
+              $f3->set('SESSION.messages',
+                  $getted ? null : $messages);
         }
     }
 
@@ -104,6 +106,8 @@ class Messages extends \Prefab
     {
         $f3 = \Base::instance();
         $messages = $f3->get('messages');
+        if($f3->get('sessionify_messages'))
+            $f3->set('messages_has_been_getted', true);
         if (!empty($type)) {
             if (in_array($type, self::$TYPES)) {
                 $i = count($messages[$type]);
