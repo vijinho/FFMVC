@@ -60,7 +60,7 @@ class Messages extends \Prefab
             $sessionify = $f3->get('sessionify_messages');
             $getted = $f3->get('messages_has_been_getted');
             $messages = $f3->get('messages');
-            if($sessonify)
+            if($sessionify)
               $f3->set('SESSION.messages',
                   $getted ? null : $messages);
         }
