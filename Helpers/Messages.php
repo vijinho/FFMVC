@@ -11,11 +11,12 @@ namespace FFMVC\Helpers;
  */
 class Messages extends \Prefab
 {
-    public static $TYPES = array(
+    public static $TYPES = [
         'success',
-        'error',
+        'danger',
         'warning',
-        'message');
+        'info'
+    ];
 
     final public static function init($sessionify = false)
     {
@@ -26,11 +27,11 @@ class Messages extends \Prefab
             $messages = $f3->get('SESSION.messages');
         }
         if (empty($messages)) {
-            $messages = array();
+            $messages = [];
         }
         foreach (self::$TYPES as $type) {
             if (!array_key_exists($type, $messages)) {
-                $messages[$type] = array();
+                $messages[$type] = [];
             }
         }
         $f3->set('messages', $messages);
@@ -71,10 +72,26 @@ class Messages extends \Prefab
         $f3 = \Base::instance();
         $messages = $f3->get('messages');
         $type     = (empty($type) || !in_array($type,
-                                               self::$TYPES)) ? 'message' : $type;
+                                               self::$TYPES)) ? 'info' : $type;
         // don't repeat messages!
         if (!in_array($message, $messages[$type]) && is_string($message)) {
             $messages[$type][] = $message;
+        }
+        $f3->set('messages', $messages);
+    }
+
+    /**
+     * add multiple messages by type
+     *
+     * @param type $messagesList
+     */
+    final public function addMessages($messagesList) {
+        $f3 = \Base::instance();
+        $messages = $f3->get('messages');
+        foreach ($messagesList as $type => $list) {
+            foreach ($list as $message) {
+                $messages[$type][] = $message;
+            }
         }
         $f3->set('messages', $messages);
     }
