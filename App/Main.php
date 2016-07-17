@@ -26,9 +26,14 @@ class Main extends \Prefab
         // read config and overrides
         // @see http://fatfreeframework.com/framework-variables#configuration-files
         $f3->config('config/default.ini');
+
+        // by default this file does not exist, you must create it and include your local settings
         if (file_exists('config/config.ini')) {
             $f3->config('config/config.ini');
         }
+
+        // set home directory for project
+        $f3->set('HOME', realpath($f3->get('SERVER.DOCUMENT_ROOT') . '/../'));
 
         // make sure directories are full, not relative path
         foreach (['LOGS', 'TEMP', 'UPLOADS'] as $key) {
@@ -42,6 +47,7 @@ class Main extends \Prefab
         // these take multiple paths
         foreach (['LOCALES', 'UI'] as $key) {
             $paths = $f3->get($key);
+                // remove any invalid dirs
             if (!empty($paths)) {
                 $dirs = $f3->split($paths);
                 if (count($dirs)) {
@@ -58,13 +64,16 @@ class Main extends \Prefab
         }
 
         $debug = $f3->get('debug');
+        // if logger wasn't injected use f3's logger
         if (empty($logger)) {
+            // no logfile defined means no logging!
             $logfile = $f3->get('application.logfile');
             if (!empty($logfile)) {
                 $logger = new \Log($logfile);
-                ini_set('log_errors', true);
-                ini_set('error_log', $logfile);
-                if ($f3->get('application.environment') == 'development') {
+                    // enable full logging if not production
+                if ('production' !== $f3->get('application.environment')) {
+                    ini_set('log_errors', true);
+                    ini_set('error_log', $logfile);
                     ini_set('error_reporting', -1);
                 }
                 $f3->set('logger', $logger);
@@ -78,16 +87,19 @@ class Main extends \Prefab
         if (PHP_SAPI == 'cli') {
             $f3->set('ONERROR', function ($f3) {
                     $e = $f3->get('ERROR');
-                    printf("Error %d: %s\n%s\n\n%s\n",
+                    // detailed error messages because it's not public
+                    $errorMessage = sprintf("Exception %d: %s\n%s\n\n%s\n",
                         $e['code'], $e['status'], $e['text'], $e['trace']
                     );
+                    $logger->write($errorMessage);
             });
-            // fix for f3 not populating $_GET on the command line
+
+            // fix for f3 not populating $_GET when run on the command line
             $uri = $f3->get('SERVER.REQUEST_URI');
             $querystring = preg_split("/&/", substr($uri, 1 + strpos($uri . '&', '?')));
             if (!empty($querystring) && count($querystring)) {
                 foreach ($querystring as $pair) {
-                    if (count($pair) == 0) {
+                    if (0 == count($pair)) {
                         continue;
                     }
                     $val = preg_split("/=/", $pair);
@@ -115,10 +127,10 @@ class Main extends \Prefab
         $debug = $f3->get('DEBUG');
         $logger = &$f3->ref('logger');
 
-        if ($logger && $debug || $f3->get('application.environment') == 'development') {
+        if ($logger && $debug || 'production' !== $f3->get('application.environment')) {
             // log database transactions if level 3
             $db = \Registry::get('db');
-            if ($debug == 3 &&
+            if (3 == $debug &&
                 method_exists($logger, 'write') &&
                 method_exists($db, 'log')) {
                 $logger->write($db->log());
