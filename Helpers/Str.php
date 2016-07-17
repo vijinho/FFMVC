@@ -22,7 +22,7 @@ class Str extends \Prefab
     final public static function random($length = 10, $chars = null)
     {
         if (empty($chars)) {
-            $chars = '23456789abcdefghjkmnopqrstuvwxyz';
+            $chars = '23456789abcdefghjkmnopqrstuvwxyzABCDEFGHJKMNOPQRSTUVWYZ';
         }
         $chars = str_shuffle($chars); // shuffle base character string
         $x = strlen($chars) - 1;
@@ -50,5 +50,38 @@ class Str extends \Prefab
         $salt = $f3->get('application.salt');
         $hash = $f3->get('application.hash');
         return base64_encode(hash_hmac($hash, $string, $salt . $pepper, true));
+    }
+
+    /**
+     * generate uuid string
+     *
+     * @return string uuid
+     */
+    final public static function uuid()
+    {
+        $faker = \Faker\Factory::create();
+        return $faker->uuid;
+    }
+
+    /**
+     * Deserialize a value as an object or array if serialized
+     *
+     * @param mixed $value
+     */
+    final public static function deserialize($value)
+    {
+        // first try to unserialize php object
+        $v = @unserialize($value); // object if success
+            // next try to json_decode - results in array
+        if (empty($v) || !is_object($v)) {
+            $v = json_decode($value, true);
+        }
+
+        // update value to unserialized object/array if necessary
+        if (is_object($v) || is_array($v)) {
+            return $v;
+        }
+
+        return $value;
     }
 }
