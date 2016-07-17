@@ -22,11 +22,11 @@ class Response extends \Prefab
      *
      * @see http://www.w3.org/TR/2008/WD-access-control-20080912/
      */
-    public static function json($data, $params = array(), $output = true)
+    public static function json($data, $params = [], $output = true)
     {
         $f3 = \Base::instance();
 
-        $headers = array();
+        $headers = [];
 
         $headers['Content-type'] = 'application/json; charset=utf-8';
         $ttl = array_key_exists('ttl', $params) ? $params['ttl'] : 0; // cache for $ttl seconds
@@ -67,7 +67,7 @@ class Response extends \Prefab
         }
 
         if (empty($output)) {
-            return array('headers' => $headers, 'body' => $body);
+            return ['headers' => $headers, 'body' => $body];
         } else {
             // send the headers + data
             foreach ($headers as $header => $value) {
@@ -126,11 +126,11 @@ class Response extends \Prefab
      *
      * @see http://www.w3.org/TR/2008/WD-access-control-20080912/
      */
-    public static function xml($data, $params = array(), $output = true)
+    public static function xml($data, $params = [], $output = true)
     {
         $f3 = \Base::instance();
 
-        $headers = array();
+        $headers = [];
 
         $headers['Content-type'] = 'application/xml; charset=utf-8';
         $ttl = array_key_exists('ttl', $params) ? $params['ttl'] : 0; // cache for $ttl seconds
@@ -171,7 +171,7 @@ class Response extends \Prefab
         }
 
         if (empty($output)) {
-            return array('headers' => $headers, 'body' => $xml);
+            return ['headers' => $headers, 'body' => $xml];
         } else {
             // send the headers + data
             foreach ($headers as $header => $value) {
