@@ -37,15 +37,19 @@ abstract class Base
     /**
      * initialize.
      */
-    public function __construct($params = array())
+    public function __construct($params = [])
     {
         if (PHP_SAPI !== 'cli') {
             exit("This controller can only be executed in CLI mode.");
         }
         $f3 = \Base::instance();
+
+        // inject class members based on params
         foreach ($params as $k => $v) {
             $this->$k = $v;
         }
+
+        // if we have none of the following setup, use defaults
         if (empty($this->db)) {
             $this->db = \Registry::get('db');
         }
