@@ -1,6 +1,10 @@
 <?php
 
-namespace FFMVC\Controllers\api;
+namespace FFMVC\Controllers\API;
+
+use \FFMVC\Helpers as Helpers;
+use \FFMVC\Models as Models;
+
 
 /**
  * Api Test Controller Class.
@@ -11,25 +15,14 @@ namespace FFMVC\Controllers\api;
  */
 class Test extends Api
 {
-    /**
-     * authorize all incoming requests, redirect to unknown if not production.
-     */
-    public function beforeRoute($f3, $params)
-    {
-        parent::beforeRoute($f3, $params);
-        if ($f3->get('application.environment') == 'production') {
-            $f3->reroute('/api/errors/unknown');
-        }
-    }
-
     // route /api
     public function request($f3, $params)
     {
         $this->params['http_methods'] = 'GET,HEAD';
-        $this->data += array(
+        $this->data += [
             'name' => 'globals',
             'description' => 'Global Variables',
-            'globals' => array(
+            'globals' => [
                 'SERVER' => $f3->get('SERVER'),
                 'ENV' => $f3->get('ENV'),
                 'COOKIE' => $f3->get('COOKIE'),
@@ -38,7 +31,7 @@ class Test extends Api
                 'GET' => $f3->get('GET'),
                 'POST' => $f3->get('POST'),
                 'FILES' => $f3->get('FILES'),
-            ),
-        );
+            ],
+        ];
     }
 }
