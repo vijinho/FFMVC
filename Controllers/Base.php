@@ -4,6 +4,7 @@ namespace FFMVC\Controllers;
 
 use FFMVC\Helpers as Helpers;
 
+
 /**
  * Base Controller Class.
  *
@@ -13,15 +14,16 @@ use FFMVC\Helpers as Helpers;
  */
 abstract class Base
 {
+
     /**
      * @var object database class
      */
     protected $db;
 
     /**
-     * @var object user messages class
+     * @var object user messagesHelper class
      */
-    protected $messages;
+    protected $messagesHelper;
 
     /**
      * @var object logging class
@@ -44,11 +46,13 @@ abstract class Base
         if (empty($this->db)) {
             $this->db = \Registry::get('db');
         }
-        if (empty($this->messages)) {
-            $this->messages = Helpers\Messages::instance();
+        if (empty($this->messagesHelper)) {
+            $this->messagesHelper = Helpers\Messages::instance();
         }
         if (empty($this->logger)) {
             $this->logger = &$f3->ref('logger');
         }
     }
+
+
 }
