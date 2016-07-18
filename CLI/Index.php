@@ -35,7 +35,7 @@ class Index extends Base
 
         // check if already running, quit if so
         exec("ps auxww | grep -i index/running | grep -v grep", $ps);
-        if (count($ps) > 1) {
+        if (1 < count($ps)) {
             $msg = $pid . ': Already running! Quitting.';
             $cli->shout($msg);
             $log->write($ps[0]);
