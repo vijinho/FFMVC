@@ -18,14 +18,11 @@ class Messages extends \Prefab
         'info'
     ];
 
-    final public static function init($sessionify = false)
+    final public static function init($saveState = false)
     {
         $f3 = \Base::instance();
         $cli = (PHP_SAPI == 'cli');
         $messages = $f3->get('messages');
-        if (empty($messages) && !$cli) {
-            $messages = $f3->get('SESSION.messages');
-        }
         if (empty($messages)) {
             $messages = [];
         }
@@ -36,16 +33,16 @@ class Messages extends \Prefab
         }
         $f3->set('messages', $messages);
         if (!$cli) {
-            $f3->set('sessionify_messages', $sessionify); // save messages in session?
+            $f3->set('messages_save_state', $saveState); // save messages in session?
         }
     }
 
 
-    final public static function sessionify($boolean)
+    final public static function saveState($boolean = true)
     {
         if (PHP_SAPI !== 'cli') {
             $f3 = \Base::instance();
-            $f3->set('sessionify_messages', $boolean);
+            $f3->set('messages_save_state', $boolean);
             return true;
         } else {
             return false;
@@ -58,10 +55,10 @@ class Messages extends \Prefab
         if (PHP_SAPI !== 'cli') {
             $f3 = \Base::instance();
             // save persistent messages
-            $sessionify = $f3->get('sessionify_messages');
+            $saveState = $f3->get('messages_save_state');
             $messages = $f3->get('messages');
             $f3->set('SESSION.messages',
-                empty($sessionify) ? null : $messages);
+                empty($saveState) ? null : $messages);
         }
     }
 
@@ -124,7 +121,7 @@ class Messages extends \Prefab
         if (!empty($type)) {
             if (in_array($type, self::$TYPES)) {
                 $i = count($messages[$type]);
-                if ($i > 0) {
+                if (0 < $i) {
                     return $messages[$type];
                 } else {
                     return false;
@@ -139,7 +136,7 @@ class Messages extends \Prefab
         foreach (self::$TYPES as $type) {
             $i += count($messages[$type]);
         }
-        if ($i == 0) {
+        if (0 == $i) {
             return false;
         }
 
