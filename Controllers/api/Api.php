@@ -207,7 +207,6 @@ class API
             'api' => $version,
             'method' => $f3->get('VERB'),
             'time' => time(),
-//            'protocol' => $f3->get('SCHEME'),
         ) + $this->data;
 
         // if an OAuthError is set, return that too
@@ -313,7 +312,7 @@ class API
             'pw' => 'password',
         ));
         $hash = function ($pw) use ($f3) {
-            return $f3->hash(Helpers\Str::salted($pw, $f3->get('REQUEST.PHP_AUTH_USER')));
+            return Helpers\Str::password($pw, $f3->get('REQUEST.PHP_AUTH_USER'));
         };
         return (int) $auth->basic($hash);
     }
@@ -377,7 +376,7 @@ class API
 
         if (empty($token)) {
             // one last try, try if auth is via OAuth Token
-            // $ curl -u '<email>:<token>' https://f3-cms.local/api/user
+            // $ curl -u '<email>:<token>' https://f3-boilerplate.local/api/user
             $user = $f3->get('REQUEST.PHP_AUTH_USER');
             if (!empty($user)) {
                 $access_token = $model->getAccessTokenByEmail($user);
@@ -414,8 +413,7 @@ class API
     protected function rel($path)
     {
         $f3 = \Base::instance();
-        $this->data['rel'] = $f3->get('SCHEME').'://'.$f3->get('HOST').$path;
-
+        $this->data['rel'] = Helpers\Url::internal($path);
         return;
     }
 
@@ -426,7 +424,7 @@ class API
         if (empty($path)) {
             $this->data['href'] = $f3->get('REALM');
         } else {
-            $this->data['href'] = $f3->get('SCHEME').'://'.$f3->get('HOST').$path;
+            $this->data['href'] = Helpers\Url::internal($path);
         }
 
         return;
@@ -470,8 +468,7 @@ class API
         $to = ($page * $per_page);
         $from = ($to - $per_page) + 1;
 
-        $url = $f3->get('PATH');
-        $page_first = $page_last = $page_next = $page_previous = $f3->get('SCHEME').'://'.$f3->get('HOST') . $url . '?';
+        $page_first = $page_last = $page_next = \Helpers\Url::instance()->internal($f3->get('PATH')) . '?';
 
         $url_params = array(
             'per_page' => $per_page,
