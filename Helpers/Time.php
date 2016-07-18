@@ -26,7 +26,7 @@ class Time extends \Prefab
 
         // use current time if bad time value or unset
         $unixtime = (int) $unixtime;
-        if ($unixtime <= 0) {
+        if (0 >= $unixtime) {
             $unixtime = time();
         }
 
@@ -50,12 +50,12 @@ class Time extends \Prefab
 
         // use current time if bad time value or unset
         $unixtime = (int) $unixtime;
-        if ($unixtime <= 0) {
+        if (0 >= $unixtime) {
             $unixtime = time();
         }
 
         // if its not a 3 letter timezone set it to GMT
-        if (strlen($zone) == 3) {
+        if (3 == strlen($zone)) {
             $zone = strtoupper($zone);
         } else {
             $zone = '';
