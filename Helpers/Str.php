@@ -53,6 +53,18 @@ class Str extends \Prefab
     }
 
     /**
+     * Generates a hashed password a given string
+     *
+     * @param string $string to salt
+     * @param string $pepper string pepper to add to the salted string for extra security
+     * @return string $encoded
+     */
+    final public static function password($string, $pepper = '')
+    {
+        return \Base::instance()->hash(self::salted($string, $pepper));
+    }
+
+    /**
      * generate uuid string
      *
      * @return string uuid
