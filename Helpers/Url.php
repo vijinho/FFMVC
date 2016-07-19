@@ -28,7 +28,9 @@ class Url extends \Prefab
             if (is_array($params)) {
                 $params = http_build_query($params);
             }
-            $url .= '?' . $params;
+            if (!empty($params)) {
+                $url .= '?' . $params;
+            }
         }
 
         if (!empty($https)) {
@@ -67,7 +69,9 @@ class Url extends \Prefab
             if (is_array($params)) {
                 $params = http_build_query($params);
             }
-            $url .= '?' . $params;
+            if (!empty($params)) {
+                $url .= '?' . $params;
+            }
         }
         return empty($full) ? $url : $f3->get('SCHEME') . '://' . $f3->get('HOST') . $url;
     }
