@@ -60,6 +60,10 @@ class Url extends \Prefab
             $url = '/' . $url;
         }
         if (!empty($params)) {
+            $session_name = strtolower(session_name());
+            if (array_key_exists($session_name, $params)) {
+                unset($params[$session_name]);
+            }
             if (is_array($params)) {
                 $params = http_build_query($params);
             }
