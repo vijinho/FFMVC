@@ -147,8 +147,8 @@ class Main extends \Prefab
 
         // http://php.net/manual/en/function.ob-end-flush.php
         while (ob_get_level()) {
-            ob_end_flush();
-            flush();
+            @ob_end_flush();
+            @flush();
         }
     }
 }
