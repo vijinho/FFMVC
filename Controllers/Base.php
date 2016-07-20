@@ -54,5 +54,29 @@ abstract class Base
         }
     }
 
+    /**
+     * Check for CSRF token, reroute if failed, otherwise generate new csrf token
+     * Call this method from a controller method class to check and then set a new csrf token
+     * then include $f3-get('csrf') as a hidden type in your form to be submitted
+     *
+     * @param type $url
+     * @param type $params
+     */
+    final public function checkCSRF($url = '@home', $params = [])
+    {
+        $f3 = \Base::instance();
+        $m = Helpers\Messages::instance();
+        $m->saveState();
+        $csrf = $f3->get('csrf');
+        if ($csrf === false) {
+            $m->add("CSRF check failed.", 'danger');
+            $url = Helpers\Url::instance()->internal($url, $params);
+            $f3->reroute($url);
+        } else {
+            $csrf = Helpers\Str::salted(Helpers\Str::random(16), Helpers\Str::random(16), Helpers\Str::random(16));
+            $f3->set('csrf', $csrf);
+            $f3->set('SESSION.csrf', $csrf);
+        }
+    }
 
 }
