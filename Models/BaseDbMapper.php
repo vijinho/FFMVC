@@ -4,20 +4,25 @@ namespace FFMVC\Models;
 
 
 /**
- * Base Database Class extends f3's DB\SQL\Mapper
+ * Base Database Mapper Class extends f3's DB\SQL\Mapper
  *
  * @author Vijay Mahrra <vijay@yoyo.org>
  * @copyright (c) Copyright 2015 Vijay Mahrra
  * @license GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
- * @see https://fatfreeframework.com/sql
+ * @url https://fatfreeframework.com/sql-mapper
  */
-abstract class BaseDb extends \DB\SQL
+abstract class BaseDbMapper extends \DB\SQL\Mapper
 {
 
     /**
      * @var object database class
      */
     protected $db;
+
+    /**
+     * @var table for the model
+     */
+    protected $table;
 
     /**
      * @var object logging class
@@ -41,6 +46,11 @@ abstract class BaseDb extends \DB\SQL
             unset($params['db']);
         }
 
+        // guess the table name from the class name if not specified as a class member
+        parent::__construct($this->db,
+            strtolower(empty($this->table) ? $f3->snakecase(substr(get_class($this),
+                            13)) : $this->table));
+
         foreach ($params as $k => $v) {
             $this->$k = $v;
         }
@@ -50,19 +60,19 @@ abstract class BaseDb extends \DB\SQL
 }
 
 
-class BaseDbException extends \Exception
+class BaseDbMapperException extends \Exception
 {
 
 }
 
 
-class BaseDbClientException extends \Exception
+class BaseDbMapperClientException extends \Exception
 {
 
 }
 
 
-class BaseDbServerException extends \Exception
+class BaseDbMapperServerException extends \Exception
 {
 
 }

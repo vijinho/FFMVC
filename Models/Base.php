@@ -2,8 +2,6 @@
 
 namespace FFMVC\Models;
 
-use \FFMVC\Helpers as Helpers;
-
 
 /**
  * Base Model Class.
@@ -21,19 +19,28 @@ abstract class Base extends \Prefab
     protected $logger;
 
     /**
-     * initialize.
+     * initialize with array of params, 'logger' can be injected
      */
     public function __construct($params = [])
     {
         $f3 = \Base::instance();
+
+        if (!array_key_exists('logger', $params)) {
+            $this->logger = &$f3->ref('logger');
+            unset($params['logger']);
+        }
+
         foreach ($params as $k => $v) {
             $this->$k = $v;
         }
-        if (empty($this->logger)) {
-            $this->logger = &$f3->ref('logger');
-        }
     }
 
+
+}
+
+
+class BaseException extends \Exception
+{
 
 }
 
