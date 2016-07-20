@@ -12,7 +12,7 @@ use \FFMVC\Helpers as Helpers;
  * @copyright (c) Copyright 2015 Vijay Mahrra
  * @license GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
-abstract class BaseDb extends Base
+abstract class BaseDb extends \DB\SQL\Mapper
 {
 
     /**
@@ -53,10 +53,14 @@ abstract class BaseDb extends Base
                             13)) : $this->table);
             $this->table = $table;
 
-            // create a mapper in the f3 hive for the table
+            // create a standard mapper in the f3 hive for the table
             $mapper = new \DB\SQL\Mapper($this->db, $table);
             $this->mapper = $mapper;
             $f3->set($f3->camelcase($table) . 'Mapper', $mapper);
+
+            // also set this class as a mapper itself too with extra methods
+            parent::__construct($this->db, $this->table);
+
         }
         if (empty($this->logger)) {
             $this->logger = &$f3->ref('logger');
