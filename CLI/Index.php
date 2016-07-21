@@ -25,7 +25,7 @@ class Index extends Base
         $cli = $this->cli;
         $cli->shoutBold(__METHOD__);
 
-        // use process id for log messages
+        // use process id for log notifications
         $mypid = getmypid();
         $pid = $mypid['PID'];
         $log = &$f3->ref('logger');

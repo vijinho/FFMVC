@@ -17,9 +17,9 @@ abstract class Base
     protected $db;
 
     /**
-     * @var object user messages class
+     * @var object user notifications class
      */
-    protected $messages;
+    protected $notifications;
 
     /**
      * @var object logging class
@@ -53,8 +53,8 @@ abstract class Base
         if (empty($this->db)) {
             $this->db = \Registry::get('db');
         }
-        if (empty($this->messages)) {
-            $this->messages = Helpers\Messages::instance();
+        if (empty($this->notifications)) {
+            $this->notifications = Helpers\Notifications::instance();
         }
         if (empty($this->logger)) {
             $this->logger = &$f3->ref('logger');

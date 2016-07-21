@@ -257,12 +257,12 @@ abstract class BaseDbMapper extends \DB\SQL\Mapper
 
 
     /**
-     * Process errors of results from (return array of $this->validate(true)) $validator->run($data) into friendlier messages
+     * Process errors of results from (return array of $this->validate(true)) $validator->run($data) into friendlier notifications
      *
      * @param mixed $errors errors from $validator->run($data) or get last errors
-     * @param array $messages
+     * @param array $notifications
      */
-    final public function getValidationMessages($errors = [])
+    final public function getValidationNotifications($errors = [])
     {
         if (empty($errors)) {
             $errors = $this->validationErrors;
@@ -270,7 +270,7 @@ abstract class BaseDbMapper extends \DB\SQL\Mapper
                 return [];
             }
         }
-        $messages = [];
+        $notifications = [];
         if (is_array($errors)) {
             foreach ($errors as $e) {
                 $fieldname = ucwords(str_replace('_', ' ', $e['field']));
@@ -302,10 +302,10 @@ abstract class BaseDbMapper extends \DB\SQL\Mapper
                             $e['rule'], $e['param']);
                         break;
                 }
-                $messages[] = $msg;
+                $notifications[] = $msg;
             }
         }
-        return $messages;
+        return $notifications;
     }
 
 

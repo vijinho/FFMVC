@@ -21,9 +21,9 @@ abstract class Base
     protected $db;
 
     /**
-     * @var object user messagesHelper class
+     * @var object user notificationsHelper class
      */
-    protected $messagesHelper;
+    protected $notificationsHelper;
 
     /**
      * @var object logging class
@@ -46,8 +46,8 @@ abstract class Base
         if (empty($this->db)) {
             $this->db = \Registry::get('db');
         }
-        if (empty($this->messagesHelper)) {
-            $this->messagesHelper = Helpers\Messages::instance();
+        if (empty($this->notificationsHelper)) {
+            $this->notificationsHelper = Helpers\Notifications::instance();
         }
         if (empty($this->logger)) {
             $this->logger = &$f3->ref('logger');
@@ -65,7 +65,7 @@ abstract class Base
     final public function checkCSRF($url = '@home', $params = [])
     {
         $f3 = \Base::instance();
-        $m = Helpers\Messages::instance();
+        $m = Helpers\Notifications::instance();
         $m->saveState();
         $csrf = $f3->get('csrf');
         if ($csrf === false) {

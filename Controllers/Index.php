@@ -16,8 +16,8 @@ class Index extends Base
     // render a php template .phtml view from ui/
     final public function index($f3, $params)
     {
-        $messages = Helpers\Messages::instance();
-        $messages->add('Welcome!', 'success');
+        $notifications = Helpers\Notifications::instance();
+        $notifications->add('Welcome!', 'success');
         echo \View::instance()->render('www/index/index.phtml');
     }
 }

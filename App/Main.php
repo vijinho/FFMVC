@@ -90,7 +90,7 @@ class Main extends \Prefab
         if (PHP_SAPI == 'cli') {
             $f3->set('ONERROR', function ($f3) {
                     $e = $f3->get('ERROR');
-                    // detailed error messages because it's not public
+                    // detailed error notifications because it's not public
                     $errorMessage = sprintf("Exception %d: %s\n%s\n\n%s\n",
                         $e['code'], $e['status'], $e['text'], $e['trace']
                     );
