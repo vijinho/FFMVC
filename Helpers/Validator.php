@@ -10,10 +10,40 @@ namespace FFMVC\Helpers;
  * @author Vijay Mahrra <vijay@yoyo.org>
  * @copyright (c) Copyright 2015 Vijay Mahrra
  * @license GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
- * @link https://github.com/Wixel/GUMP
  */
 class Validator extends \GUMP
 {
+    /**
+     * Function to create and return previously created instance
+     * Renamed from get_instance() to follow $f3 design pattern
+     * as calling $this->get_instance() will ignore this class
+     * and get a GUMP instance instead if this method did not exist
+     *
+     * @return Validator
+     */
+
+    public static function instance(){
+        if(self::$instance === null)
+        {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    /**
+     * Perform data validation against the provided ruleset.
+     *
+     * @param mixed $input
+     * @param array optinal $ruleset ot use class rulset
+     *
+     * @return mixed
+     *
+     * @throws Exception
+     */
+    public function validate(array $input, array $ruleset = [])
+    {
+        return empty($rulseset) ? parent::validate($input, $this->validation_rules) : parent::validate($input, $rulset);
+    }
 
     /**
      *  A custom filter named "lower".
@@ -60,7 +90,7 @@ class Validator extends \GUMP
      * @return type
      * @link https://fatfreeframework.com/utf-unicode-string-manager#ltrim
      */
-    public function ltrim($value, $param = null)
+    public function filter_ltrim($value, $param = null)
     {
         return \UTF::instance()->ltrim($value);
     }
@@ -77,7 +107,7 @@ class Validator extends \GUMP
      * @return type
      * @link https://fatfreeframework.com/utf-unicode-string-manager#rtrim
      */
-    public function rtrim($value, $param = null)
+    public function filter_rtrim($value, $param = null)
     {
         return \UTF::instance()->rtrim($value);
     }
@@ -94,7 +124,7 @@ class Validator extends \GUMP
      * @return type
      * @link https://fatfreeframework.com/utf-unicode-string-manager#trim
      */
-    public function trim($value, $param = null)
+    public function filter_trim($value, $param = null)
     {
         return \UTF::instance()->trim($value);
     }
@@ -111,7 +141,7 @@ class Validator extends \GUMP
      * @return type
      * @link https://fatfreeframework.com/utf-unicode-string-manager#translate
      */
-    public function translate($value, $param = null)
+    public function filter_translate($value, $param = null)
     {
         return \UTF::instance()->translate($value);
     }
@@ -128,7 +158,7 @@ class Validator extends \GUMP
      * @return type
      * @link https://fatfreeframework.com/utf-unicode-string-manager#emojify
      */
-    public function emojify($value, $param = null)
+    public function filter_emojify($value, $param = null)
     {
         return \UTF::instance()->emojify($value);
     }
