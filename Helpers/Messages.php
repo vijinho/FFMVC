@@ -2,6 +2,7 @@
 
 namespace FFMVC\Helpers;
 
+
 /**
  * Messages Helper Class.
  *
@@ -11,6 +12,7 @@ namespace FFMVC\Helpers;
  */
 class Messages extends \Prefab
 {
+
     public static $TYPES = [
         'success',
         'danger',
@@ -18,7 +20,7 @@ class Messages extends \Prefab
         'info'
     ];
 
-    final public static function init($saveState = false)
+    final public static function init($saveState = true)
     {
         $f3 = \Base::instance();
         $cli = (PHP_SAPI == 'cli');
@@ -35,6 +37,20 @@ class Messages extends \Prefab
         if (!$cli) {
             $f3->set('messages_save_state', $saveState); // save messages in session?
         }
+    }
+
+
+    /**
+     * Clear all messages
+     */
+    final public static function clear()
+    {
+        $f3 = \Base::instance();
+        $messages = [];
+        foreach (self::$TYPES as $type) {
+            $messages[$type] = [];
+        }
+        $f3->set('messages', $messages);
     }
 
 
@@ -57,8 +73,7 @@ class Messages extends \Prefab
             // save persistent messages
             $saveState = $f3->get('messages_save_state');
             $messages = $f3->get('messages');
-            $f3->set('SESSION.messages',
-                empty($saveState) ? null : $messages);
+            $f3->set('SESSION.messages', empty($saveState) ? null : $messages);
         }
     }
 
@@ -68,8 +83,7 @@ class Messages extends \Prefab
     {
         $f3 = \Base::instance();
         $messages = $f3->get('messages');
-        $type     = (empty($type) || !in_array($type,
-                                               self::$TYPES)) ? 'info' : $type;
+        $type = (empty($type) || !in_array($type, self::$TYPES)) ? 'info' : $type;
         // don't repeat messages!
         if (!in_array($message, $messages[$type]) && is_string($message)) {
             $messages[$type][] = $message;
@@ -77,12 +91,14 @@ class Messages extends \Prefab
         $f3->set('messages', $messages);
     }
 
+
     /**
      * add multiple messages by type
      *
      * @param type $messagesList
      */
-    final public function addMessages($messagesList) {
+    final public function addMessages($messagesList)
+    {
         $f3 = \Base::instance();
         $messages = $f3->get('messages');
         foreach ($messagesList as $type => $list) {
@@ -92,6 +108,7 @@ class Messages extends \Prefab
         }
         $f3->set('messages', $messages);
     }
+
 
     // return messages of given type or all TYPES, return false if none
     final public static function sum($type = null)
@@ -113,8 +130,9 @@ class Messages extends \Prefab
         return $i;
     }
 
+
     // return messages of given type or all TYPES, return false if none, clearing stack
-    final public static function get($type = null)
+    final public static function get($type = null, $clear = true)
     {
         $f3 = \Base::instance();
         $messages = $f3->get('messages');
@@ -145,6 +163,14 @@ class Messages extends \Prefab
         foreach (self::$TYPES as $type) {
             $return[$type] = $messages[$type];
         }
+
+        // clear all messages
+        if (!empty($clear)) {
+            self::clear();
+        }
+
         return $return;
     }
+
+
 }
