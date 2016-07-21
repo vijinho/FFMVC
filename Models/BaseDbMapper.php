@@ -107,6 +107,17 @@ abstract class BaseDbMapper extends \DB\SQL\Mapper
 
 
     /**
+     * Revert the mapper field values from the database
+     */
+    public function revert()
+    {
+        $id = $this->id;
+        $this->reset();
+        return $this->load(['id = ?', $id]);
+    }
+
+
+    /**
      * Set filter rules from array
      *
      * @param array $rules
