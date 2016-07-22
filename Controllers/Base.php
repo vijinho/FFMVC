@@ -50,7 +50,7 @@ abstract class Base
             $this->notificationsHelper = Helpers\Notifications::instance();
         }
         if (empty($this->logger)) {
-            $this->logger = &$f3->ref('logger');
+            $this->logger = \Registry::get('logger');
         }
     }
 

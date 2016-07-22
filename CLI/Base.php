@@ -57,7 +57,7 @@ abstract class Base
             $this->notifications = Helpers\Notifications::instance();
         }
         if (empty($this->logger)) {
-            $this->logger = &$f3->ref('logger');
+            $this->logger = \Registry::get('logger');
         }
         if (empty($this->cli)) {
             $this->cli = new \League\CLImate\CLImate;

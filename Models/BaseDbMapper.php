@@ -82,7 +82,7 @@ abstract class BaseDbMapper extends \DB\SQL\Mapper
         $f3 = \Base::instance();
 
         if (!array_key_exists('logger', $params)) {
-            $this->logger = &$f3->ref('logger');
+            $this->logger = \Registry::get('logger');
             unset($params['logger']);
         }
 

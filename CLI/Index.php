@@ -28,7 +28,7 @@ class Index extends Base
         // use process id for log notifications
         $mypid = getmypid();
         $pid = $mypid['PID'];
-        $log = &$f3->ref('logger');
+        $log = \Registry::get('logger');
         $msg = $pid . ': Starting...';
         $cli->shout($msg);
         $log->write($msg);

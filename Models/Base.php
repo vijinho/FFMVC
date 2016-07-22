@@ -26,7 +26,7 @@ abstract class Base extends \Prefab
         $f3 = \Base::instance();
 
         if (!array_key_exists('logger', $params)) {
-            $this->logger = &$f3->ref('logger');
+            $this->logger = \Registry::get('logger');
             unset($params['logger']);
         }
 

@@ -76,7 +76,7 @@ class Main extends \Prefab
                     ini_set('error_log', $logfile);
                     ini_set('error_reporting', -1);
                 }
-                $f3->set('logger', $logger);
+                \Registry->set('logger', $logger);
             }
         }
         // setup outgoing email server for php mail command
@@ -128,7 +128,7 @@ class Main extends \Prefab
     {
         // log script execution time if debugging
         $debug = $f3->get('DEBUG');
-        $logger = &$f3->ref('logger');
+        $logger = \Registry::get('logger');
 
         if ($logger && $debug || 'production' !== $f3->get('application.environment')) {
             // log database transactions if level 3
