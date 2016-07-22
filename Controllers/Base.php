@@ -4,7 +4,6 @@ namespace FFMVC\Controllers;
 
 use FFMVC\Helpers as Helpers;
 
-
 /**
  * Base Controller Class.
  *
@@ -14,22 +13,6 @@ use FFMVC\Helpers as Helpers;
  */
 abstract class Base
 {
-
-    /**
-     * @var object database class
-     */
-    protected $db;
-
-    /**
-     * @var object user notificationsHelper class
-     */
-    protected $notificationsHelper;
-
-    /**
-     * @var object logging class
-     */
-    protected $logger;
-
     /**
      * initialize.
      */
@@ -41,17 +24,6 @@ abstract class Base
         foreach ($params as $k => $v) {
             $this->$k = $v;
         }
-
-        // use defaults if missing
-        if (empty($this->db)) {
-            $this->db = \Registry::get('db');
-        }
-        if (empty($this->notificationsHelper)) {
-            $this->notificationsHelper = Helpers\Notifications::instance();
-        }
-        if (empty($this->logger)) {
-            $this->logger = \Registry::get('logger');
-        }
     }
 
     /**
@@ -59,24 +31,29 @@ abstract class Base
      * Call this method from a controller method class to check and then set a new csrf token
      * then include $f3-get('csrf') as a hidden type in your form to be submitted
      *
-     * @param type $url
-     * @param type $params
+     * @param string $url if csrf check fails
+     * @param array $params for querystring
+     * @return boolean true/false if csrf enabled
      */
-    final public function checkCSRF($url = '@home', $params = [])
+    public function checkCSRF($url = '@index', $params = [])
     {
         $f3 = \Base::instance();
-        $m = Helpers\Notifications::instance();
-        $m->saveState();
+        if (empty($f3->get('app.csrf_enabled'))) {
+            return false;
+        }
         $csrf = $f3->get('csrf');
         if ($csrf === false) {
-            $m->add("CSRF check failed.", 'danger');
             $url = Helpers\Url::instance()->internal($url, $params);
             $f3->reroute($url);
+            return;
         } else {
             $csrf = Helpers\Str::salted(Helpers\Str::random(16), Helpers\Str::random(16), Helpers\Str::random(16));
             $f3->set('csrf', $csrf);
             $f3->set('SESSION.csrf', $csrf);
+            header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
         }
+        return true;
     }
+
 
 }

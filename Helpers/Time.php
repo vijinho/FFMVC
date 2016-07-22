@@ -26,12 +26,14 @@ class Time extends \Prefab
 
         // use current time if bad time value or unset
         $unixtime = (int) $unixtime;
+
         if (0 >= $unixtime) {
             $unixtime = time();
         }
 
         // format date/time according to database driver
         $dbms = (empty($dbms)) ? \F3::get('db.driver') : $dbms;
+
         switch ($dbms) {
             default:
             case 'mysql':
@@ -45,11 +47,12 @@ class Time extends \Prefab
      * @param int time php time value
      * @param string $zone timezone
      */
-    final public static function HTTP($unixtime = null, $zone = '')
+    public static function HTTP($unixtime = null, $zone = '')
     {
 
         // use current time if bad time value or unset
         $unixtime = (int) $unixtime;
+        
         if (0 >= $unixtime) {
             $unixtime = time();
         }

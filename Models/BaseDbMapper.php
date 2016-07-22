@@ -4,7 +4,6 @@ namespace FFMVC\Models;
 
 use \FFMVC\Helpers as Helpers;
 
-
 /**
  * Base Database Mapper Class extends f3's DB\SQL\Mapper
  *
@@ -93,8 +92,7 @@ abstract class BaseDbMapper extends \DB\SQL\Mapper
 
         // guess the table name from the class name if not specified as a class member
         parent::__construct($this->db,
-            strtolower(empty($this->table) ? $f3->snakecase(substr(get_class($this),
-                            13)) : $this->table));
+            strtolower(empty($this->table) ? $f3->snakecase(substr(get_class($this), 13)) : $this->table));
 
         foreach ($params as $k => $v) {
             $this->$k = $v;
@@ -113,6 +111,7 @@ abstract class BaseDbMapper extends \DB\SQL\Mapper
     {
         $id = $this->id;
         $this->reset();
+
         return $this->load(['id = ?', $id]);
     }
 
@@ -123,9 +122,10 @@ abstract class BaseDbMapper extends \DB\SQL\Mapper
      * @param array $rules
      * @return array
      */
-    final public function setFilterRules(array $rules = [])
+    public function setFilterRules(array $rules = [])
     {
         $this->filterRules = $rules;
+
         return $this->filterRules;
     }
 
@@ -136,9 +136,10 @@ abstract class BaseDbMapper extends \DB\SQL\Mapper
      * @param array $rules
      * @return array
      */
-    final public function setValidationRules(array $rules = [])
+    public function setValidationRules(array $rules = [])
     {
         $this->validationRules = $rules;
+
         return $this->validationRules;
     }
 
@@ -148,9 +149,10 @@ abstract class BaseDbMapper extends \DB\SQL\Mapper
      *
      * @return array
      */
-    final public function resetFilterRules()
+    public function resetFilterRules()
     {
         $this->filterRules = $this->filterRulesDefault;
+
         return $this->filterRules;
     }
 
@@ -160,9 +162,10 @@ abstract class BaseDbMapper extends \DB\SQL\Mapper
      *
      * @return array
      */
-    final public function resetValidationRules()
+    public function resetValidationRules()
     {
         $this->validationRules = $this->validationRulesDefault;
+
         return $this->validationRules;
     }
 
@@ -173,9 +176,10 @@ abstract class BaseDbMapper extends \DB\SQL\Mapper
      * @param array $rules
      * @return array
      */
-    final public function addFilterRules(array $rules = [])
+    public function addFilterRules(array $rules = [])
     {
         $this->filterRules = array_merge($this->filterRules, $rules);
+
         return $this->filterRules;
     }
 
@@ -186,9 +190,10 @@ abstract class BaseDbMapper extends \DB\SQL\Mapper
      * @param array $rules
      * @return array
      */
-    final public function addValidationRules(array $rules = [])
+    public function addValidationRules(array $rules = [])
     {
         $this->validationRules = array_merge($this->validationRules, $rules);
+
         return $this->validationRules;
     }
 
@@ -200,7 +205,7 @@ abstract class BaseDbMapper extends \DB\SQL\Mapper
      * @param array optional $fields
      * @return array $validationRules
      */
-    final public function requiredValidation(array $fields = [])
+    public function requiredValidation(array $fields = [])
     {
         $rules = $this->validationRules;
 
@@ -211,15 +216,18 @@ abstract class BaseDbMapper extends \DB\SQL\Mapper
 
         // appened 'required' to validation rules for fields
         foreach ($rules as $k => $v) {
+
             if (in_array($k, $fields)) {
                 $rules[$k] = 'required|' . $v;
             } elseif (false !== stristr($v, 'exact_len')) {
                 // special case, exact_len means required otherwise!
                 unset($rules[$k]);
             }
+
         }
 
         $this->validationRules = $rules;
+
         return $this->validationRules;
     }
 
@@ -232,25 +240,33 @@ abstract class BaseDbMapper extends \DB\SQL\Mapper
      * @return mixed array of validated data if 'run' otherwise array of errors or boolean if passed 'validate'
      * @link https://github.com/Wixel/GUMP
      */
-    final public function validate($run = true, array $data = [])
+    public function validate($run = true, array $data = [])
     {
         if (!is_array($data) || empty($data)) {
             $data = $this->cast();
         }
+
         $validator = Helpers\Validator::instance();
         $validator->validation_rules($this->validationRules);
 //        $validator->filter_rules($this->filterRules);
+
         if (empty($run)) {
+
             $this->validationErrors = $validator->validate($data);
             $this->valid = !is_array($this->validationErrors);
+
             return $this->valid ? true : $this->validationErrors;
+
         } else {
+
             $this->valid = false;
             $data = $validator->run($data);
+
             if (is_array($data)) {
                 $this->valid = true;
                 $this->copyfrom($data); // update filtered/validated data
             }
+
             return $this->valid;
         }
     }
@@ -262,7 +278,7 @@ abstract class BaseDbMapper extends \DB\SQL\Mapper
      * @param mixed $errors errors from $validator->run($data) or get last errors
      * @param array $notifications
      */
-    final public function getValidationNotifications($errors = [])
+    public function getValidationErrors($errors = [])
     {
         if (empty($errors)) {
             $errors = $this->validationErrors;
@@ -270,33 +286,45 @@ abstract class BaseDbMapper extends \DB\SQL\Mapper
                 return [];
             }
         }
+
         $notifications = [];
+
         if (is_array($errors)) {
+
             foreach ($errors as $e) {
+
                 $fieldname = ucwords(str_replace('_', ' ', $e['field']));
+
                 switch ($e['rule']) {
+
                     case 'validate_exact_len':
                         $msg = sprintf('%s must be exactly %d characters in length.',
                             $fieldname, $e['param']);
                         break;
+
                     case 'validate_min_len':
                         $msg = sprintf('%s must be at least %d characters.',
                             $fieldname, $e['param']);
                         break;
+
                     case 'validate_max_len':
                         $msg = sprintf('%s must at most %d characters.',
                             $fieldname, $e['param']);
                         break;
+
                     case 'validate_valid_url':
                         $msg = sprintf('URLs must be valid if set.', $fieldname);
                         break;
+
                     case 'validate_valid_email':
                         $msg = sprintf('%s must be a valid email address.',
                             $fieldname);
                         break;
+
                     case 'validate_required':
                         $msg = sprintf('%s must be entered.', $fieldname);
                         break;
+
                     default:
                         $msg = sprintf('Exception: %s %s %s', $fieldname,
                             $e['rule'], $e['param']);

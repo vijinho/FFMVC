@@ -11,7 +11,7 @@ namespace FFMVC\CLI;
  */
 class Index extends Base
 {
-    final public function index($f3, $params)
+    public function index($f3, $params)
     {
         $cli = $this->cli;
         $cli->shoutBold(__METHOD__);
@@ -20,7 +20,7 @@ class Index extends Base
 
     // example to test if already running
     // run cli.php '/index/running' in two different terminals
-    final public function running($f3, $params)
+    public function running($f3, $params)
     {
         $cli = $this->cli;
         $cli->shoutBold(__METHOD__);
@@ -35,6 +35,7 @@ class Index extends Base
 
         // check if already running, quit if so
         exec("ps auxww | grep -i index/running | grep -v grep", $ps);
+
         if (1 < count($ps)) {
             $msg = $pid . ': Already running! Quitting.';
             $cli->shout($msg);
@@ -42,6 +43,7 @@ class Index extends Base
             $log->write($msg);
             return false;
         }
+
         sleep(10);
     }
 

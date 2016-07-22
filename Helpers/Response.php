@@ -30,12 +30,13 @@ class Response extends \Prefab
 
         $headers['Content-type'] = 'application/json; charset=utf-8';
         $ttl = array_key_exists('ttl', $params) ? $params['ttl'] : 0; // cache for $ttl seconds
+
         if (empty($ttl)) {
             $headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0';
             $ttl = 0;
         }
 
-        $headers['Expires'] = \FFMVC\Helpers\Time::http(array_key_exists('expires', $params) ? $params['expires'] : time() + $ttl);
+        $headers['Expires'] = Time::http(array_key_exists('expires', $params) ? $params['expires'] : time() + $ttl);
         $headers['Access-Control-Max-Age'] = $ttl;
 
         if (array_key_exists('http_methods', $params)) {
@@ -60,6 +61,7 @@ class Response extends \Prefab
         if (!empty($output)) {
             $headers['Content-Length'] = strlen($body);
         }
+
         if (array_key_exists('etag', $params)) {
             $headers['ETag'] = $params['etag'];
         } else {
@@ -69,16 +71,19 @@ class Response extends \Prefab
         if (empty($output)) {
             return ['headers' => $headers, 'body' => $body];
         } else {
-            // send the headers + data
+                // send the headers + data
             foreach ($headers as $header => $value) {
                 header($header.': '.$value);
             }
+
             // default status is 200 - OK
             if (!array_key_exists('http_status', $params)) {
                 $params['http_status'] = 200;
             }
+
             $f3->status($params['http_status']);
             $method = $f3->get('SERVER.REQUEST_METHOD');
+
             switch ($method) {
                 case 'HEAD':
                     break;
@@ -100,16 +105,18 @@ class Response extends \Prefab
      * @param string           $child_name
      *
      * @return SimpleXMLElement $xml
-     * @url http://stackoverflow.com/questions/1397036/how-to-convert-array-to-simplexml
+     * @link http://stackoverflow.com/questions/1397036/how-to-convert-array-to-simplexml
      */
     private static function arrayToXML($array, \SimpleXMLElement $xml, $child_name)
     {
         foreach ($array as $k => $v) {
+
             if (is_array($v)) {
                 (is_int($k)) ? self::arrayToXML($v, $xml->addChild($child_name), $v) : self::arrayToXML($v, $xml->addChild(strtolower($k)), $child_name);
             } else {
                 (is_int($k)) ? $xml->addChild($child_name, $v) : $xml->addChild(strtolower($k), $v);
             }
+
         }
 
         return $xml->asXML();
@@ -134,12 +141,13 @@ class Response extends \Prefab
 
         $headers['Content-type'] = 'application/xml; charset=utf-8';
         $ttl = array_key_exists('ttl', $params) ? $params['ttl'] : 0; // cache for $ttl seconds
+
         if (empty($ttl)) {
             $headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0';
             $ttl = 0;
         }
 
-        $headers['Expires'] = \FFMVC\Helpers\Time::http(array_key_exists('expires', $params) ? $params['expires'] : time() + $ttl);
+        $headers['Expires'] = Time::http(array_key_exists('expires', $params) ? $params['expires'] : time() + $ttl);
         $headers['Access-Control-Max-Age'] = $ttl;
 
         if (array_key_exists('http_methods', $params)) {
@@ -164,6 +172,7 @@ class Response extends \Prefab
         if (!empty($output)) {
             $headers['Content-Length'] = strlen($body);
         }
+
         if (array_key_exists('etag', $params)) {
             $headers['ETag'] = $params['etag'];
         } else {
@@ -173,16 +182,19 @@ class Response extends \Prefab
         if (empty($output)) {
             return ['headers' => $headers, 'body' => $xml];
         } else {
-            // send the headers + data
+                // send the headers + data
             foreach ($headers as $header => $value) {
                 header($header.': '.$value);
             }
+
             // default status is 200 - OK
             if (!array_key_exists('http_status', $params)) {
                 $params['http_status'] = 200;
             }
+
             $f3->status($params['http_status']);
             $method = $f3->get('SERVER.REQUEST_METHOD');
+            
             switch ($method) {
                 case 'HEAD':
                     break;

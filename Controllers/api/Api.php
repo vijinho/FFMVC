@@ -74,7 +74,7 @@ class API
      * Error format required by RFC6794.
      *
      * @var type
-     * @url https://tools.ietf.org/html/rfc6749
+     * @link https://tools.ietf.org/html/rfc6749
      */
     protected $OAuthErrorTypes = array(
         'invalid_request' => array(
@@ -160,20 +160,24 @@ class API
         $f3 = \Base::instance();
         $this->db = \Registry::get('db');
         $this->response = Helpers\Response::instance();
+        $this->version = $f3->get('app.version');
         $params = $f3->get('PARAMS');
-        $this->version = $f3->get('application.version');
 
         // paging options
         $page = (int) $f3->get('REQUEST.page');
+
         if (0 >= $page) {
             $page = null;
         }
+
         $f3->set('REQUEST.page', $page);
 
         $per_page = (int) $f3->get('REQUEST.per_page');
+
         if (0 >= $per_page) {
             $per_page = null;
         }
+
         $f3->set('REQUEST.per_page', $per_page);
 
         // 1 - reverse, 0 - ascending
@@ -186,6 +190,7 @@ class API
     public function afterRoute($f3, $params)
     {
         $version = (int) $f3->get('REQUEST.version');
+
         if (empty($version)) {
             $version = $this->version;
         }
@@ -213,19 +218,22 @@ class API
         if (!empty($this->OAuthError)) {
             $data['error'] = $this->OAuthError;
         }
+
         if (count($this->errors)) {
             ksort($this->errors);
             $data['errors'] = $this->errors;
         }
+
         $return = $f3->get('REQUEST.return');
+
         switch ($return) {
             case 'xml':
-            $this->response->xml($data, $this->params);
-            break;
+                $this->response->xml($data, $this->params);
+                break;
 
             default:
-            case 'json':
-            $this->response->json($data, $this->params);
+                case 'json':
+                $this->response->json($data, $this->params);
         }
     }
 
@@ -239,6 +247,7 @@ class API
     public function failure($code, $message, $http_status = null)
     {
         $this->errors[$code] = $message;
+
         if (!empty($http_status)) {
             $this->params['http_status'] = $http_status;
         }
@@ -251,7 +260,7 @@ class API
      *
      * @return mixed array error type or boolean false
      */
-    final protected function getOAuthErrorType($type)
+    protected function getOAuthErrorType($type)
     {
         return array_key_exists($type, $this->OAuthErrorTypes) ? $this->OAuthErrorTypes[$type] : false;
     }
@@ -269,24 +278,33 @@ class API
     public function setOAuthError($code, $state = null)
     {
         $error = $this->getOAuthErrorType($code);
+
         if (empty($error)) {
+
             throw new Models\ApiServerException('Invalid OAuth error type.', 5100);
+
         } else {
+
             if (empty($state)) {
                 unset($error['state']);
             } else {
                 $error['state'] = $state;
             }
+
             switch ($code) {
+
                 case 'invalid_client': // as per-spec
                     $this->params['http_status'] = 401;
                     break;
+
                 case 'server_error':
                     $this->params['http_status'] = 500;
                     break;
+
                 case 'invalid_credentials':
                     $this->params['http_status'] = 403;
                     break;
+
                 default:
                     $this->params['http_status'] = 400;
                     break;
@@ -304,16 +322,19 @@ class API
      *
      * @return bool success/failure
      */
-    final public static function basicAuthenticateLoginPassword()
+    public function basicAuthenticateLoginPassword()
     {
         $f3 = \Base::instance();
+
         $auth = new \Auth(new \DB\SQL\Mapper(\Registry::get('db'), 'users', array('email', 'password'), 10), array(
             'id' => 'email',
             'pw' => 'password',
         ));
+
         $hash = function ($pw) use ($f3) {
-            return Helpers\Str::password($pw, $f3->get('REQUEST.PHP_AUTH_USER'));
+            return Helpers\Str::password($pw);
         };
+
         return (int) $auth->basic($hash);
     }
 
@@ -342,25 +363,30 @@ class API
      *
      * @return false or array the token
      */
-    final protected function validateAccess($token = null)
+    protected function validateAccess($token = null)
     {
         $f3 = \Base::instance();
-        $model = Models\Users::instance();
+        $model = new Models\Users;
 
         $token = $f3->get('REQUEST.access_token');
+
         if (!empty($token)) {
             $access_token = $model->verifyBearerAccessToken($token);
         }
 
         // check if login via http auth
         $phpAuthUser = $f3->get('REQUEST.PHP_AUTH_USER');
+
         if (!empty($phpAuthUser)) {
-            // try to login as email:password
+
+                // try to login as email:password
             if (empty($access_token)) {
+
                 $userLogin = $this->basicAuthenticateLoginPassword();
                 if (!empty($userLogin)) {
                     $access_token = $model->getAccessTokenByEmail($phpAuthUser);
                 }
+
             }
         }
 
@@ -376,10 +402,13 @@ class API
 
         if (empty($token)) {
             // one last try, try if auth is via OAuth Token
-            // $ curl -u '<email>:<token>' https://f3-boilerplate.local/api/user
+            // $ curl -u '<email>:<token>' https://f3-cms.local/api/user
             $user = $f3->get('REQUEST.PHP_AUTH_USER');
+
             if (!empty($user)) {
+
                 $access_token = $model->getAccessTokenByEmail($user);
+
                 if (!empty($access_token)) {
                     $token = $f3->get('REQUEST.PHP_AUTH_PW');
                     $token = ($token == $access_token) ? $token : null;
@@ -389,6 +418,7 @@ class API
             if (empty($token)) {
                 $this->setOAuthError('invalid_request');
                 $this->failure(4007, 'Missing bearer access token', 400);
+
                 return false;
             }
         }
@@ -421,6 +451,7 @@ class API
     protected function href($path = null)
     {
         $f3 = \Base::instance();
+
         if (empty($path)) {
             $this->data['href'] = $f3->get('REALM');
         } else {
@@ -436,7 +467,9 @@ class API
      * @param type $data
      * @return type
      */
-    final protected function page_results($data) {
+    protected function page_results($data)
+    {
+
         $f3 = \Base::instance();
 
         $page = $f3->get('REQUEST.page');
@@ -449,6 +482,7 @@ class API
         if (empty($per_page) || 5 > $per_page) {
             $per_page = 5;
         }
+
         if ($per_page > count($data)) {
             $per_page = count($data);
         }
@@ -460,11 +494,13 @@ class API
 
         // calculate which section of results to return
         $pages = ceil(count($data) / $per_page);
+
         if ($page > $pages) {
             $page = $pages;
         } else if (1 >= $pages) {
             $per_page = count($data);
         }
+
         $to = ($page * $per_page);
         $from = ($to - $per_page) + 1;
 
@@ -479,6 +515,7 @@ class API
         $page_last .= http_build_query($url_params + array('page' => $pages));
 
         $n = $page + 1;
+
         if ($n < $pages) {
             $page_next .= http_build_query($url_params + array('page' => $n));
         } else {
@@ -486,6 +523,7 @@ class API
         }
 
         $p = $page - 1;
+
         if (0 < $p) {
             $page_previous .= http_build_query($url_params + array('page' => $p));
         } else {
@@ -519,6 +557,7 @@ class API
     public function user($f3, $params)
     {
         $this->validateAccess();
+
         $this->params['http_methods'] = 'GET,HEAD';
         $this->data = [
             'access_token' => $f3->get('access_token')

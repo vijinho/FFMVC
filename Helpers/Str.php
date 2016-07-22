@@ -19,17 +19,20 @@ class Str extends \Prefab
      * @param string $chars characters to use for random string
      * @return string password
      */
-    final public static function random($length = 10, $chars = null)
+    public static function random($length = 10, $chars = null)
     {
         if (empty($chars)) {
             $chars = '23456789abcdefghjkmnopqrstuvwxyzABCDEFGHJKMNOPQRSTUVWYZ';
         }
+
         $chars = str_shuffle($chars); // shuffle base character string
         $x = strlen($chars) - 1;
         $str = '';
+
         for ($i = 0; $i < $length; $i++) {
             $str .= substr($chars, rand(0, $x), 1);
         }
+
         return $str;
     }
 
@@ -39,16 +42,17 @@ class Str extends \Prefab
      *
      * @param string $string to salt
      * @param string $pepper string pepper to add to the salted string for extra security
-     * @param string $salt string if not default application.salt config item
+     * @param string $salt string if not default app.salt config item
      * @return string $encoded
-     * @url http://php.net/manual/en/function.hash-hmac.php
-     * @url http://fatfreeframework.com/base#hash
+     * @link http://php.net/manual/en/function.hash-hmac.php
+     * @link http://fatfreeframework.com/base#hash
      */
-    final public static function salted($string, $pepper = '')
+    public static function salted($string, $pepper = '')
     {
         $f3 = \Base::instance();
-        $salt = $f3->get('application.salt');
-        $hash = $f3->get('application.hash');
+        $salt = $f3->get('app.salt');
+        $hash = $f3->get('app.hash');
+
         return base64_encode(hash_hmac($hash, $string, $salt . $pepper, true));
     }
 
@@ -59,7 +63,7 @@ class Str extends \Prefab
      * @param string $pepper string pepper to add to the salted string for extra security
      * @return string $encoded
      */
-    final public static function password($string, $pepper = '')
+    public static function password($string, $pepper = '')
     {
         return \Base::instance()->hash(self::salted($string, $pepper));
     }
@@ -69,9 +73,10 @@ class Str extends \Prefab
      *
      * @return string uuid
      */
-    final public static function uuid()
+    public static function uuid()
     {
         $faker = \Faker\Factory::create();
+
         return $faker->uuid;
     }
 
@@ -80,10 +85,11 @@ class Str extends \Prefab
      *
      * @param mixed $value
      */
-    final public static function deserialize($value)
+    public static function deserialize($value)
     {
         // first try to unserialize php object
         $v = @unserialize($value); // object if success
+
             // next try to json_decode - results in array
         if (empty($v) || !is_object($v)) {
             $v = json_decode($value, true);

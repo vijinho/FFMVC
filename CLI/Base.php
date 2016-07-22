@@ -42,6 +42,7 @@ abstract class Base
         if (PHP_SAPI !== 'cli') {
             exit("This controller can only be executed in CLI mode.");
         }
+
         $f3 = \Base::instance();
 
         // inject class members based on params
@@ -53,12 +54,15 @@ abstract class Base
         if (empty($this->db)) {
             $this->db = \Registry::get('db');
         }
+
         if (empty($this->notifications)) {
             $this->notifications = Helpers\Notifications::instance();
         }
+
         if (empty($this->logger)) {
             $this->logger = \Registry::get('logger');
         }
+
         if (empty($this->cli)) {
             $this->cli = new \League\CLImate\CLImate;
             $this->cli->clear();

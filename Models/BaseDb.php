@@ -2,7 +2,6 @@
 
 namespace FFMVC\Models;
 
-
 /**
  * Base Database Class extends f3's DB\SQL\Mapper
  *
@@ -11,7 +10,7 @@ namespace FFMVC\Models;
  * @license GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  * @see https://fatfreeframework.com/sql
  */
-abstract class BaseDb extends \DB\SQL
+abstract class BaseDb extends \DB\SQL\Mapper
 {
 
     /**

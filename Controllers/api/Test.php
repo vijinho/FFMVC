@@ -5,7 +5,6 @@ namespace FFMVC\Controllers\API;
 use \FFMVC\Helpers as Helpers;
 use \FFMVC\Models as Models;
 
-
 /**
  * Api Test Controller Class.
  *

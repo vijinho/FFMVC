@@ -17,7 +17,7 @@ class Mail extends \Prefab
      * @param array $data
      * @return \PHPMailer
      */
-    final public static function getPhpMailer(array $data = [])
+    public static function getPhpMailer(array $data = [])
     {
         $f3 = \Base::instance();
 
@@ -25,14 +25,16 @@ class Mail extends \Prefab
         $mail->isSMTP();
         $mail->isHTML(true);
         $mail->CharSet = 'UTF-8';
-        $mail->Username = $f3->get('email.username');
-        $mail->Password = $f3->get('email.password');
+        $mail->Username = $f3->get('email.user');
+        $mail->Password = $f3->get('email.pass');
         $mail->Port = $f3->get('email.port');
         $mail->Host = $f3->get('email.host');
         $mail->Timeout = $f3->get('email.timeout');
+
         if ($f3->get('email.sendmail')) {
             $mail->Sendmail = 'smtp://' .  $f3->get('email.host') . ':' . $f3->get('email.port');
         }
+        
         $mail->FromName = $f3->get('email.from_name');
         $mail->From = $f3->get('email.from');
 
