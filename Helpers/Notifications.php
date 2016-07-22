@@ -73,14 +73,35 @@ class Notifications extends \Prefab
     }
 
 
+    /**
+     * Log notifications
+     */
+    public static function log()
+    {
+        $f3 = \Base::instance();
+        $debug = $f3->get('DEBUG');
+        $logger = \Registry::get('logger');
+        $notifications = $f3->get('notifications');
+        if ($notifications && 3 <= $debug && $logger && method_exists($logger, 'write')) {
+            foreach ($notifications as $type => $messages) {
+                foreach ($messages as $m) {
+                    $msg = ' Notification: ' . trim($type . ' ' . $m);
+                    $logger->write($msg);
+                }
+            }
+        }
+    }
+
     public function __destruct()
     {
         if (PHP_SAPI !== 'cli') {
             $f3 = \Base::instance();
 
+            self::log();
             // save persistent notifications
-            $f3->set('SESSION.notifications', empty($f3->get('notifications_save_state')) ? null : $f3->get('notifications'));
-            $f3->sync('SESSION');
+            $notifications = empty($f3->get('notifications_save_state')) ? null : $f3->get('notifications');
+            $f3->set('SESSION.notifications', $notifications);
+
         }
     }
 
@@ -183,6 +204,7 @@ class Notifications extends \Prefab
 
         // clear all notifications
         if (!empty($clear)) {
+            self::log();
             self::clear();
         }
 
