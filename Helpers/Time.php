@@ -49,21 +49,20 @@ class Time extends \Prefab
      */
     public static function HTTP($unixtime = null, $zone = '')
     {
-
         // use current time if bad time value or unset
         $unixtime = (int) $unixtime;
-        
+
         if (0 >= $unixtime) {
             $unixtime = time();
         }
 
         // if its not a 3 letter timezone set it to GMT
-        if (3 == strlen($zone)) {
+        if (3 == \UTF::instance()->strlen($zone)) {
             $zone = strtoupper($zone);
         } else {
             $zone = '';
         }
 
-        return trim(gmdate('D, d M Y H:i:s', $unixtime).' '.$zone);
+        return \UTF::instance()->trim(gmdate('D, d M Y H:i:s', $unixtime).' '.$zone);
     }
 }
