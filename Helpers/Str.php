@@ -26,11 +26,11 @@ class Str extends \Prefab
         }
 
         $chars = str_shuffle($chars); // shuffle base character string
-        $x = strlen($chars) - 1;
+        $x = \UTF::instance()->strlen($chars) - 1;
         $str = '';
 
         for ($i = 0; $i < $length; $i++) {
-            $str .= substr($chars, rand(0, $x), 1);
+            $str .= \UTF::instance()->substr($chars, rand(0, $x), 1);
         }
 
         return $str;
@@ -67,6 +67,21 @@ class Str extends \Prefab
     {
         return \Base::instance()->hash(self::salted($string, $pepper));
     }
+
+
+    /**
+     * Compares a hashed password with the hashed value of a given string
+     *
+     * @param string $hashed_password a hashed password
+     * @param string $string to salt
+     * @param string $pepper string pepper to add to the salted string for extra security
+     * @return boolean success on match
+     */
+    public static function passwordVerify($hashed_password, $string, $pepper = '')
+    {
+        return ($hashed_password === \Base::instance()->hash(self::salted($string, $pepper)));
+    }
+
 
     /**
      * generate uuid string
