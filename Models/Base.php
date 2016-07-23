@@ -16,7 +16,7 @@ abstract class Base extends \Prefab
     /**
      * @var object logging class
      */
-    protected $logger;
+    protected $loggerObject;
 
     /**
      * initialize with array of params, 'logger' can be injected
@@ -25,9 +25,8 @@ abstract class Base extends \Prefab
     {
         $f3 = \Base::instance();
 
-        if (!array_key_exists('logger', $params)) {
-            $this->logger = \Registry::get('logger');
-            unset($params['logger']);
+        if (!array_key_exists('loggerObject', $params)) {
+            $this->loggerObject = \Registry::get('logger');
         }
 
         foreach ($params as $k => $v) {
@@ -35,6 +34,29 @@ abstract class Base extends \Prefab
         }
     }
 
+
+    /**
+     * Write to log
+     *
+     * @param mixed $data
+     * @return bool true on success
+     */
+    public function log($data)
+    {
+        if (empty($this->loggerObject) || empty($data)) {
+            return false;
+        }
+        if (is_string($data)) {
+            $data = [$data];
+        } elseif (is_object($data)) {
+            $data = print_r($data, 1);
+        } elseif (is_array($data)) {
+            foreach ($data as $line) {
+                $this->loggerObject->write($line);
+            }
+        }
+        return true;
+    }
 
 }
 
