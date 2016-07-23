@@ -17,14 +17,14 @@ abstract class Base
     protected $db;
 
     /**
-     * @var object user notifications class
+     * @var object logging objects
      */
-    protected $notifications;
+    protected $loggerObject;
 
     /**
-     * @var object logging class
+     * @var object user notifications objects
      */
-    protected $logger;
+    protected $notificationObject;
 
     /**
      * Use climate by default
@@ -33,6 +33,7 @@ abstract class Base
      * @link http://climate.thephpleague.com/
      */
     protected $cli;
+
 
     /**
      * initialize.
@@ -55,12 +56,12 @@ abstract class Base
             $this->db = \Registry::get('db');
         }
 
-        if (empty($this->notifications)) {
-            $this->notifications = Helpers\Notifications::instance();
+        if (empty($this->notificationObject)) {
+            $this->notificationObject = Helpers\Notifications::instance();
         }
 
-        if (empty($this->logger)) {
-            $this->logger = \Registry::get('logger');
+        if (empty($this->loggerObject)) {
+            $this->loggerObject = \Registry::get('logger');
         }
 
         if (empty($this->cli)) {
@@ -69,11 +70,54 @@ abstract class Base
         }
     }
 
+
+    /**
+     * Write to log
+     *
+     * @param mixed $data
+     * @return bool true on success
+     */
+    public function log($data)
+    {
+        if (empty($this->loggerObject) || empty($data)) {
+            return false;
+        }
+        if (is_string($data)) {
+            $data = [$data];
+        } elseif (is_object($data)) {
+            $data = print_r($data, 1);
+        } elseif (is_array($data)) {
+            foreach ($data as $line) {
+                $this->loggerObject->write($line);
+            }
+        }
+        return true;
+    }
+
+
+    /**
+     * Notify user
+     *
+     * @param mixed $data multiple messages by 'type' => [messages] OR message string
+     * @param string $type type of messages OR null if multiple $data
+     * @return boolean success
+     */
+    public function notify($data, $type = null)
+    {
+        if (is_array($data)) {
+            return $this->notificationObject->addMultiple($data);
+        } else {
+            return $this->notificationObject->add($data, $type);
+        }
+    }
+
+
     public function beforeRoute($f3, $params)
     {
         $cli = $this->cli;
         $cli->blackBoldUnderline("CLI Script");
     }
+
 
     public function afterRoute($f3, $params)
     {
