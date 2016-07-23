@@ -38,13 +38,13 @@ class Url extends \Prefab
 
         if (!empty($https)) {
 
-            $p = strpos($url, 'http://');
+            $p = \UTF::instance()->strpos($url, 'http://');
 
             if ($p !== false) {
-                $url = 'https://' . substr($url, 7);
+                $url = 'https://' . \UTF::instance()->substr($url, 7);
             }
         }
-        
+
         return $url;
     }
 
@@ -62,11 +62,11 @@ class Url extends \Prefab
         $f3 = \Base::instance();
 
         if ('@' == $url[0]) {
-            $url = $f3->alias(substr($url,1));
+            $url = $f3->alias(\UTF::instance()->substr($url,1));
         }
 
         // missing slash at start of url path
-        if ('/' !== substr($url, 0, 1)) {
+        if ('/' !== \UTF::instance()->substr($url, 0, 1)) {
             $url = '/' . $url;
         }
 
