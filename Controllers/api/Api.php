@@ -2,8 +2,9 @@
 
 namespace FFMVC\Controllers\API;
 
-use \FFMVC\Helpers as Helpers;
-use \FFMVC\Models as Models;
+use FFMVC\Helpers as Helpers;
+use FFMVC\Models as Models;
+use FFMVC\Models\Mappers as Mappers;
 
 /**
  * Api Controller Class.
@@ -40,21 +41,21 @@ class API
      *
      * @var errors
      */
-    protected $errors = array();
+    protected $errors = [];
 
     /**
      * response data.
      *
      * @var data
      */
-    protected $data = array();
+    protected $data = [];
 
     /**
      * response params.
      *
      * @var params
      */
-    protected $params = array();
+    protected $params = [];
 
     /**
      * response helper.
@@ -76,74 +77,74 @@ class API
      * @var type
      * @link https://tools.ietf.org/html/rfc6749
      */
-    protected $OAuthErrorTypes = array(
-        'invalid_request' => array(
+    protected $OAuthErrorTypes = [
+        'invalid_request' => [
             'code' => 'invalid_request',
             'description' => 'The request is missing a required parameter, includes an invalid parameter value, includes a parameter more than once, or is otherwise malformed.',
             'uri' => '',
             'state' => '',
-        ),
-        'invalid_credentials' => array(
+        ],
+        'invalid_credentials' => [
             'code' => 'invalid_credentials',
             'description' => 'Credentials for authentication were invalid.',
             'uri' => '',
             'state' => '',
-        ),
-        'invalid_client' => array(
+        ],
+        'invalid_client' => [
             'code' => 'invalid_client',
             'description' => 'Client authentication failed (e.g., unknown client, no client authentication included, or unsupported authentication method).',
             'uri' => '',
             'state' => '',
-        ),
-        'invalid_grant' => array(
+        ],
+        'invalid_grant' => [
             'code' => 'invalid_grant',
             'description' => 'The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client.',
             'uri' => '',
             'state' => '',
-        ),
-        'unsupported_grant_type' => array(
+        ],
+        'unsupported_grant_type' => [
             'code' => 'unsupported_grant_type',
             'description' => 'The authorization grant type is not supported by the authorization server.',
             'uri' => '',
             'state' => '',
-        ),
-        'unauthorized_client' => array(
+        ],
+        'unauthorized_client' => [
             'code' => 'unauthorized_client',
             'description' => 'The client is not authorized to request an authorization code using this method.',
             'uri' => '',
             'state' => '',
-        ),
-        'access_denied' => array(
+        ],
+        'access_denied' => [
             'code' => 'access_denied',
             'description' => 'The resource owner or authorization server denied the request.',
             'uri' => '',
             'state' => '',
-        ),
-        'unsupported_response_type' => array(
+        ],
+        'unsupported_response_type' => [
             'code' => 'unsupported_response_type',
             'description' => 'The authorization server does not support obtaining an authorization code using this method.',
             'uri' => '',
             'state' => '',
-        ),
-        'invalid_scope' => array(
+        ],
+        'invalid_scope' => [
             'code' => 'invalid_scope',
             'description' => 'The requested scope is invalid, unknown, or malformed.',
             'uri' => '',
             'state' => '',
-        ),
-        'server_error' => array(
+        ],
+        'server_error' => [
             'code' => 'server_error',
             'description' => 'The authorization server encountered an unexpected condition that prevented it from fulfilling the request.',
             'uri' => '',
             'state' => '',
-        ),
-        'temporarily_unavailable' => array(
+        ],
+        'temporarily_unavailable' => [
             'code' => 'temporarily_unavailable',
             'description' => 'The authorization server is currently unable to handle the request due to a temporary overloading or maintenance of the server.',
             'uri' => '',
             'state' => '',
-        ),
-    );
+        ],
+    ];
 
     /**
      * The OAuth Error to return if an OAuthError occurs.
@@ -200,19 +201,19 @@ class API
         }
 */
         if (!is_array($this->data)) {
-            $this->data = array($this->data);
+            $this->data = [$this->data];
         }
 
         if (!array_key_exists('href', $this->data) || empty($data['href'])) {
             $data['href'] = $this->href();
         }
 
-        $data = array(
+        $data = [
             'service' => 'API',
             'api' => $version,
             'method' => $f3->get('VERB'),
             'time' => time(),
-        ) + $this->data;
+        ] + $this->data;
 
         // if an OAuthError is set, return that too
         if (!empty($this->OAuthError)) {
@@ -227,10 +228,6 @@ class API
         $return = $f3->get('REQUEST.return');
 
         switch ($return) {
-            case 'xml':
-                $this->response->xml($data, $this->params);
-                break;
-
             default:
                 case 'json':
                 $this->response->json($data, $this->params);
@@ -281,7 +278,7 @@ class API
 
         if (empty($error)) {
 
-            throw new Models\ApiServerException('Invalid OAuth error type.', 5100);
+            throw new ApiServerException('Invalid OAuth error type.', 5100);
 
         } else {
 
@@ -326,10 +323,10 @@ class API
     {
         $f3 = \Base::instance();
 
-        $auth = new \Auth(new \DB\SQL\Mapper(\Registry::get('db'), 'users', array('email', 'password'), 10), array(
+        $auth = new \Auth(new \DB\SQL\Mapper(\Registry::get('db'), 'users', ['email', 'password'], 10), [
             'id' => 'email',
             'pw' => 'password',
-        ));
+        ]);
 
         $hash = function ($pw) use ($f3) {
             return Helpers\Str::password($pw);
@@ -366,12 +363,13 @@ class API
     protected function validateAccess($token = null)
     {
         $f3 = \Base::instance();
-        $model = new Models\Users;
+        $usersModel = Models\Users::instance();
+        $usersMapper = $usersModel->getMapper();
 
         $token = $f3->get('REQUEST.access_token');
 
         if (!empty($token)) {
-            $access_token = $model->verifyBearerAccessToken($token);
+            $access_token = $usersMapper->verifyBearerAccessToken($token);
         }
 
         // check if login via http auth
@@ -384,7 +382,7 @@ class API
 
                 $userLogin = $this->basicAuthenticateLoginPassword();
                 if (!empty($userLogin)) {
-                    $access_token = $model->getAccessTokenByEmail($phpAuthUser);
+                    $access_token = $usersMapper->getAccessTokenByEmail($phpAuthUser);
                 }
 
             }
@@ -407,7 +405,7 @@ class API
 
             if (!empty($user)) {
 
-                $access_token = $model->getAccessTokenByEmail($user);
+                $access_token = $usersMapper->getAccessTokenByEmail($user);
 
                 if (!empty($access_token)) {
                     $token = $f3->get('REQUEST.PHP_AUTH_PW');
@@ -506,18 +504,18 @@ class API
 
         $page_first = $page_last = $page_next = \Helpers\Url::instance()->internal($f3->get('PATH')) . '?';
 
-        $url_params = array(
+        $url_params = [
             'per_page' => $per_page,
             'sort_direction' => $sort_direction
-        );
+        ];
 
-        $page_first .= http_build_query($url_params + array('page' => 1));
-        $page_last .= http_build_query($url_params + array('page' => $pages));
+        $page_first .= http_build_query($url_params + ['page' => 1]);
+        $page_last .= http_build_query($url_params + ['page' => $pages]);
 
         $n = $page + 1;
 
         if ($n < $pages) {
-            $page_next .= http_build_query($url_params + array('page' => $n));
+            $page_next .= http_build_query($url_params + ['page' => $n]);
         } else {
             $page_next = '';
         }
@@ -525,12 +523,12 @@ class API
         $p = $page - 1;
 
         if (0 < $p) {
-            $page_previous .= http_build_query($url_params + array('page' => $p));
+            $page_previous .= http_build_query($url_params + ['page' => $p]);
         } else {
             $page_previous = '';
         }
 
-        $this->data['paging'] = array(
+        $this->data['paging'] = [
             'page' => $page,
             'per_page' => $per_page,
             'total_pages' => $pages,
@@ -542,7 +540,7 @@ class API
             'page_previous' => $page_previous,
             'page_first' => $page_first,
             'page_last' => $page_last
-        );
+        ];
 
         return array_slice($data, $from, $per_page);
     }
