@@ -2,7 +2,9 @@
 
 namespace FFMVC\CLI;
 
+use FFMVC\Traits as Traits;
 use FFMVC\Helpers as Helpers;
+use FFMVC\Models as Models;
 
 /**
  * Base CLI Controller Class.
@@ -11,20 +13,14 @@ use FFMVC\Helpers as Helpers;
  */
 abstract class Base
 {
+    use Traits\Logger;
+    use Traits\Notification;
+    use Traits\Validation;
+
     /**
      * @var object database class
      */
     protected $db;
-
-    /**
-     * @var object logging objects
-     */
-    protected $loggerObject;
-
-    /**
-     * @var object user notifications objects
-     */
-    protected $notificationObject;
 
     /**
      * Use climate by default
@@ -70,48 +66,7 @@ abstract class Base
         }
     }
 
-
-    /**
-     * Write to log
-     *
-     * @param mixed $data
-     * @return bool true on success
-     */
-    public function log($data)
-    {
-        if (empty($this->loggerObject) || empty($data)) {
-            return false;
-        }
-        if (is_string($data)) {
-            $data = [$data];
-        } elseif (is_object($data)) {
-            $data = print_r($data, 1);
-        } elseif (is_array($data)) {
-            foreach ($data as $line) {
-                $this->loggerObject->write($line);
-            }
-        }
-        return true;
-    }
-
-
-    /**
-     * Notify user
-     *
-     * @param mixed $data multiple messages by 'type' => [messages] OR message string
-     * @param string $type type of messages OR null if multiple $data
-     * @return boolean success
-     */
-    public function notify($data, $type = null)
-    {
-        if (is_array($data)) {
-            return $this->notificationObject->addMultiple($data);
-        } else {
-            return $this->notificationObject->add($data, $type);
-        }
-    }
-
-
+    
     public function beforeRoute($f3, $params)
     {
         $cli = $this->cli;
