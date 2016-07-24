@@ -31,8 +31,13 @@ trait Logger
         if (is_string($data)) {
             $data = [$data];
         } elseif (is_object($data)) {
-            $data = print_r($data, 1);
-        } elseif (is_array($data)) {
+            if (is_a($data, '\Exception') && $f3->get('DEBUG') > 2) {
+                $data = print_r($data, 1);
+            } else {
+                $data = print_r($data, 1);
+            }
+        }
+        if (is_array($data)) {
             foreach ($data as $line) {
                 $this->loggerObject->write($line);
             }
