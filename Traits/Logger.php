@@ -25,6 +25,7 @@ trait Logger
      */
     public function log($data)
     {
+        $f3 = \Base::instance();
         if (empty($this->loggerObject) || empty($data)) {
             return false;
         }
