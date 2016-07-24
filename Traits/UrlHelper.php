@@ -3,6 +3,11 @@
 namespace FFMVC\Traits;
 
 
+/**
+ * The constructor should initialise a member $urlHelperObject which has two methods:
+ *     - internal to generate an internal link (optionally with @value to reference a URL alias)
+ *     - external to generate an external link (default to https)
+ */
 trait UrlHelper
 {
 

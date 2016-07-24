@@ -3,6 +3,17 @@
 namespace FFMVC\Traits;
 
 
+/**
+ * Handle validation (via GUMP or GUMP-inheriting validation class)
+ *
+ * The constructor should optional initialise default validation and filtering rules.
+ * The class can then call the default method validate() which return true/false if validation passed
+ * or validate(false) which returns an array of the validation errors which can be made
+ * more presentable passed into getValidationErrors()
+ *
+ * @see \FFMVC\Helpers\Validator
+ * @url https://github.com/Wixel/GUMP
+ */
 trait Validation
 {
     /**

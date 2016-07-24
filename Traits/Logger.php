@@ -3,6 +3,12 @@
 namespace FFMVC\Traits;
 
 
+/**
+ * The class constructor should initialise a member loggerObject which contains
+ * the method 'write' to write a line to the log entry - default file -  backend.
+ * If an array is passed, each value is written as a new line.
+ * Passing in an object dumps it to the log.
+ */
 trait Logger
 {
 

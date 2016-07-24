@@ -9,6 +9,7 @@ namespace FFMVC\Helpers;
  * @author Vijay Mahrra <vijay@yoyo.org>
  * @copyright (c) Copyright 2015 Vijay Mahrra
  * @license GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
+ * @url https://github.com/Wixel/GUMP
  */
 class Validator extends \GUMP
 {

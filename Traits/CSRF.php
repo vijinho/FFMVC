@@ -3,6 +3,13 @@
 namespace FFMVC\Traits;
 
 
+/**
+ * Check for CSRF code (see counterpart CSRF code in app/app.php)
+ *
+ * If a config key called 'app.csrf_enabled' is true, will redirect the client
+ * to the supplied url (or homepage if not). The URL can be a full internal URL
+ * or an f3 url alias.
+ */
 trait CSRF
 {
     /**

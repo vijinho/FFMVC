@@ -3,6 +3,13 @@
 namespace FFMVC\Traits;
 
 
+/**
+ * Add user notifications messages, typically for user feedback from web pages.
+ * The class constructor must set a member $notificationObject which contains
+ * two methods:
+ *     - add which adds notification of $type (e.g warning or into)
+ *     - addMultiple which adds multiple messages in $type => $messages[] format
+ */
 trait Notification
 {
 
