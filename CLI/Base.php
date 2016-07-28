@@ -4,7 +4,6 @@ namespace FFMVC\CLI;
 
 use FFMVC\Traits as Traits;
 use FFMVC\Helpers as Helpers;
-use FFMVC\Models as Models;
 
 /**
  * Base CLI Controller Class.
@@ -14,9 +13,10 @@ use FFMVC\Models as Models;
 abstract class Base
 {
     use Traits\Logger;
+    use Traits\Audit;
     use Traits\Notification;
     use Traits\Validation;
-
+    
     /**
      * @var object database class
      */
@@ -56,6 +56,10 @@ abstract class Base
             $this->notificationObject = Helpers\Notifications::instance();
         }
 
+        if (!array_key_exists('auditObject', $params)) {
+            $this->auditObject = Models\Audit::instance();
+        }
+
         if (empty($this->loggerObject)) {
             $this->loggerObject = \Registry::get('logger');
         }
@@ -66,7 +70,7 @@ abstract class Base
         }
     }
 
-    
+
     public function beforeRoute($f3, $params)
     {
         $cli = $this->cli;
