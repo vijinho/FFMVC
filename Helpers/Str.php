@@ -22,7 +22,8 @@ class Str extends \Prefab
     public static function random($length = 10, $chars = null)
     {
         if (empty($chars)) {
-            $chars = '23456789abcdefghjkmnopqrstuvwxyzABCDEFGHJKMNOPQRSTUVWYZ';
+            // ignore characters which can be consued, i, l, 1, o, O, 0 etc
+            $chars = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWYZ';
         }
 
         $chars = str_shuffle($chars); // shuffle base character string
@@ -33,7 +34,7 @@ class Str extends \Prefab
             $str .= \UTF::instance()->substr($chars, rand(0, $x), 1);
         }
 
-        return $str;
+        return (string) $str;
     }
 
 
