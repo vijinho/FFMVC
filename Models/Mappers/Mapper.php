@@ -81,24 +81,79 @@ abstract class Mapper extends \DB\SQL\Mapper
 
 
     /**
-     * Enhanced mapper save only saves if validation passes and also generates a uuid if needed
+     * Convert the mapper object to JSON
      *
-     * @return boolean true/false
+     * @return json
      */
-    public function vSave()
+    public function toJson()
     {
-        // generate UUID
-        if (in_array('uuid', $this->fields()) && (null == $this->uuid)) {
+        $data = $this->cast();
+        return json_encode($data, JSON_PRETTY_PRINT);
+    }
+
+
+    /**
+     * Set a field (default named uuid) to a UUID value if one is not present.
+     *
+     * @param string $field the name of the field to check and set
+     * @return string $uuid the new uuid generated
+     */
+    public function setUUID($field = 'uuid')
+    {
+        // a proper uuid is 36 characters
+        if (in_array($field, $this->fields()) && (null == $this->$field || strlen($this->$field !== 36))) {
             $tmp = clone $this;
             $uuid = Helpers\Str::uuid();
-            while ($tmp->load(['uuid = ?', $uuid])) {
+            while ($tmp->load(["$field = ?", $uuid])) {
                 $uuid = Helpers\Str::uuid();
             }
             unset($tmp);
-            $this->uuid = $uuid;
+            $this->$field = $uuid;
+            return $uuid;
+        }
+        return empty($this->$field) ? null : $this->$field;
+    }
+
+
+    /**
+     * Enhanced mapper save only saves if validation passes and also generates a uuid if needed
+     *
+     * @param string $id uuid key field
+     * @return boolean true/false
+     */
+    public function smartSave($id = 'uuid')
+    {
+        // set UUID vield value if not set
+        $this->setUUID($id);
+
+        // set date created field if not set
+        if (in_array('created', $this->fields()) && empty($this->created)) {
+            $this->created = Helpers\Time::database();
         }
 
         return $this->validate() ? $this->save() : false;
+    }
+
+
+    /**
+     * Apply filter rules to data
+     *
+     * @param array $data
+     * @param array $rules
+     * @return $data
+     */
+    public function filter(array $data = [], array $rules = [])
+    {
+        if (!is_array($data) || empty($data)) {
+            $data = $this->cast();
+        }
+
+        $validator = Helpers\Validator::instance();
+        $validator->filter_rules($this->filterRules);
+        $data = $validator->filter($data);
+        $this->copyfrom($data); // update filtered/validated data
+        return $data;
+
     }
 
 
@@ -118,7 +173,8 @@ abstract class Mapper extends \DB\SQL\Mapper
 
         $validator = Helpers\Validator::instance();
         $validator->validation_rules($this->validationRules);
-//        $validator->filter_rules($this->filterRules);
+        $validator->filter_rules($this->filterRules);
+        $data = $validator->filter($data);
 
         if (empty($run)) {
 
