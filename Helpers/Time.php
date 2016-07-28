@@ -49,6 +49,8 @@ class Time extends \Prefab
      */
     public static function HTTP($unixtime = null, $zone = '')
     {
+        $f3 = \Base::instance();
+
         // use current time if bad time value or unset
         $unixtime = (int) $unixtime;
 
