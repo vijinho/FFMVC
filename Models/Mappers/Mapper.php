@@ -20,6 +20,20 @@ abstract class Mapper extends \DB\SQL\Mapper
     use Traits\Validation;
 
     /**
+     * Fields and their visibility to clients, boolean or string of visible field name
+     *
+     * @var array $fieldsVisible
+     */
+    protected $fieldsVisible = [];
+
+    /**
+     * Fields that are editable to clients, boolean or string of visible field name
+     *
+     * @var array $fieldsEditable
+     */
+    protected $fieldsEditable = [];
+
+    /**
      * @var object database class
      */
     protected $db;
@@ -81,14 +95,46 @@ abstract class Mapper extends \DB\SQL\Mapper
 
 
     /**
-     * Convert the mapper object to JSON
+     * Cast the mapper data to an array and modify (for external clients typically)
+     * using the visible fields and names for export, converting dates to unixtime
      *
-     * @return json
+     * @param boolean $unmodified should the data be mapper original or modified?
+     * @return array $data
      */
-    public function toJson()
+    public function &exportArray($unmodified = false)
     {
         $data = $this->cast();
-        return json_encode($data, JSON_PRETTY_PRINT);
+        if (!empty($unmodified)) {
+            return $data;
+        }
+        foreach ($data as $k => $v) {
+            if (empty($this->fieldsVisible[$k])) {
+                unset($data[$k]);
+                continue;
+            } elseif (true !== $this->fieldsVisible[$k]) {
+                unset($data[$k]);
+                $data[$this->fieldsVisible[$k]] = $v;
+            }
+            // convert date to unix timestamp
+            if ('updated' == $k || 'created' == $k || (
+                strlen($v) == 19 && preg_match("/^[\d]{4}-[\d]{2}-[\d]{2}[\s]+[\d]{2}:[\d]{2}:[\d]{2}/", $v, $m))) {
+                $data[$k] = strtotime($v);
+            }
+        }
+        return $data;
+    }
+
+
+    /**
+     * Convert the mapper object to format suitable for JSON
+     *
+     * @param boolean $unmodified should the data be mapper original or modified?
+     * @param boolean $public cast as public (visible) data or raw db data?
+     * @return json
+     */
+    public function &exportJson($unmodified = false)
+    {
+        return json_encode(empty($public) ? $this->cast() : $this->exportArray($unmodified), JSON_PRETTY_PRINT);
     }
 
 
