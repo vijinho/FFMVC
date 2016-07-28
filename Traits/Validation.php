@@ -2,6 +2,7 @@
 
 namespace FFMVC\Traits;
 
+use FFMVC\Helpers as Helpers;
 
 /**
  * Handle validation (via GUMP or GUMP-inheriting validation class)
@@ -187,6 +188,21 @@ trait Validation
 
 
     /**
+     * Apply filter rules to data
+     *
+     * @param array $data
+     * @param array $rules
+     * @return $data
+     */
+    public function filter(array $data = [], array $rules = [])
+    {
+        $validator = Helpers\Validator::instance();
+        $validator->filter_rules($this->filterRules);
+        return $validator->filter($data);
+    }
+
+
+    /**
      * Filter and validate
      *
      * @param bool $run GUMP - call 'run' (return true/false) otherwise call 'validate' (return array)
@@ -198,7 +214,8 @@ trait Validation
     {
         $validator = Helpers\Validator::instance();
         $validator->validation_rules($this->validationRules);
-//        $validator->filter_rules($this->filterRules);
+        $validator->filter_rules($this->filterRules);
+        $data = $validator->filter($data);
 
         if (empty($run)) {
 
