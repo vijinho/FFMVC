@@ -2,6 +2,7 @@
 
 namespace FFMVC\Controllers\API;
 
+use FFMVC\Traits as Traits;
 use FFMVC\Helpers as Helpers;
 use FFMVC\Models as Models;
 use FFMVC\Models\Mappers as Mappers;
@@ -15,6 +16,11 @@ use FFMVC\Models\Mappers as Mappers;
  */
 class API
 {
+    use Traits\Logger;
+    use Traits\Audit;
+    use Traits\UrlHelper;
+    use Traits\Validation;
+
     /**
      * version.
      *
@@ -58,11 +64,11 @@ class API
     protected $params = [];
 
     /**
-     * response helper.
+     * response helper object.
      *
      * @var response
      */
-    protected $response;
+    protected $responseObject;
 
     /**
      * db.
@@ -156,33 +162,37 @@ class API
     /**
      * initialize.
      */
-    public function __construct()
+    public function __construct($params)
     {
         $f3 = \Base::instance();
         $this->db = \Registry::get('db');
-        $this->response = Helpers\Response::instance();
         $this->version = $f3->get('app.version');
-        $params = $f3->get('PARAMS');
 
-        // paging options
-        $page = (int) $f3->get('REQUEST.page');
-
-        if (0 >= $page) {
-            $page = null;
+        if (!array_key_exists('responseObject', $params)) {
+            $this->responseObject = Helpers\Response::instance();
         }
 
-        $f3->set('REQUEST.page', $page);
-
-        $per_page = (int) $f3->get('REQUEST.per_page');
-
-        if (0 >= $per_page) {
-            $per_page = null;
+        if (!array_key_exists('loggerObject', $params)) {
+            $this->loggerObject = \Registry::get('logger');
         }
 
-        $f3->set('REQUEST.per_page', $per_page);
+        if (!array_key_exists('auditObject', $params)) {
+            $this->auditObject = Models\Audit::instance();
+        }
 
-        // 1 - reverse, 0 - ascending
-        $f3->set('REQUEST.sort_direction', (int) !empty($f3->get('REQUEST.sort_direction')));
+        if (!array_key_exists('urlHelperObject', $params)) {
+            $this->urlHelperObject = Helpers\Url::instance();
+        }
+
+        // inject class members
+        foreach ($params as $k => $v) {
+            $this->$k = $v;
+        }
+
+        // finally execute init method if exists
+        if (method_exists($this, 'init')) {
+            return $this->init($f3, $params);
+        }
     }
 
     /**
@@ -190,30 +200,12 @@ class API
      */
     public function afterRoute($f3, $params)
     {
-        $version = (int) $f3->get('REQUEST.version');
+        $this->params['headers'] = empty($this->params['headers']) ? [] : $this->params['headers'];
+        $this->params['headers'] = [
+            'Version' => $f3->get('app.api_version'),
+        ];
 
-        if (empty($version)) {
-            $version = $this->version;
-        }
-/*
-        if ($version !== $this->version) {
-            $this->failure(4999, 'Unknown API version requested.', 400);
-        }
-*/
-        if (!is_array($this->data)) {
-            $this->data = [$this->data];
-        }
-
-        if (!array_key_exists('href', $this->data) || empty($data['href'])) {
-            $data['href'] = $this->href();
-        }
-
-        $data = [
-            'service' => 'API',
-            'api' => $version,
-            'method' => $f3->get('VERB'),
-            'time' => time(),
-        ] + $this->data;
+        $data = [];
 
         // if an OAuthError is set, return that too
         if (!empty($this->OAuthError)) {
@@ -222,22 +214,25 @@ class API
 
         if (count($this->errors)) {
             ksort($this->errors);
-            $data['errors'] = $this->errors;
+            foreach ($this->errors as $code => $message) {
+                $data['error']['errors'][] = [
+                    'code' => $code,
+                    'message' => $message
+                ];
+            }
         }
 
-        $return = $f3->get('REQUEST.return');
-
-        switch ($return) {
-            default:
-                case 'json':
-                $this->response->json($data, $this->params);
+        if (is_array($this->data)) {
+            $data = array_merge($data, $this->data);
         }
+
+        $this->responseObject->json($data, $this->params);
     }
 
     /**
      * add to the list of errors that occured during this request.
      *
-     * @param int    $code        the error code
+     * @param string $code        the error code
      * @param string $message     the error message
      * @param int    $http_status the http status code
      */
@@ -266,31 +261,29 @@ class API
      * Set the RFC-compliant OAuth Error to return.
      *
      * @param type $code  of error code from RFC
-     * @param type $state optional application state
      *
      * @throws Models\ApiServerException
      *
      * @return the OAuth error array
      */
-    public function setOAuthError($code, $state = null)
+    public function setOAuthError($code)
     {
         $error = $this->getOAuthErrorType($code);
-
         if (empty($error)) {
-
-            throw new ApiServerException('Invalid OAuth error type.', 5100);
-
+            throw new APIServerException('Invalid OAuth error type.', 5100);
         } else {
+            $this->OAuthError = $error;
 
-            if (empty($state)) {
-                unset($error['state']);
-            } else {
-                $error['state'] = $state;
+            // only set https status if not set anywhere else
+            if (!empty($this->params['http_status']) && $this->params['http_status'] !== 200) {
+                return $error;
             }
 
             switch ($code) {
 
                 case 'invalid_client': // as per-spec
+                case 'invalid_grant':
+                case 'unauthorized_client':
                     $this->params['http_status'] = 401;
                     break;
 
@@ -306,7 +299,6 @@ class API
                     $this->params['http_status'] = 400;
                     break;
             }
-            $this->OAuthError = $error;
         }
 
         return $error;
@@ -314,8 +306,9 @@ class API
 
     /**
      * Basic Authentication for email:password
+     *
      * Check that the credentials match the database
-     * Cache result for 10 seconds.
+     * Cache result for 30 seconds.
      *
      * @return bool success/failure
      */
@@ -323,16 +316,43 @@ class API
     {
         $f3 = \Base::instance();
 
-        $auth = new \Auth(new \DB\SQL\Mapper(\Registry::get('db'), 'users', ['email', 'password'], 10), [
+        $auth = new \Auth(new \DB\SQL\Mapper(\Registry::get('db'), 'users', ['email', 'password'], 30), [
             'id' => 'email',
             'pw' => 'password',
         ]);
 
-        $hash = function ($pw) use ($f3) {
+        return (int) $auth->basic(function ($pw) {
             return Helpers\Str::password($pw);
-        };
+        });
+    }
 
-        return (int) $auth->basic($hash);
+    /**
+     * Authentication for client_id and client_secret
+     *
+     * Check that the credentials match a registered app
+     * @param string $clientId the client id to check
+     * @param string $clientSecret the client secret to check
+     * @return bool success/failure
+     */
+    public function authenticateClientIdSecret($clientId, $clientSecret)
+    {
+        if (empty($clientId) || empty($clientSecret)) {
+            return false;
+        }
+        // check fields, return boolean
+    }
+
+    /**
+     * Basic Authentication for client_id:client_secret
+     *
+     * Check that the credentials match a registered app
+     *
+     * @return bool success/failure
+     */
+    public function basicAuthenticateClientIdSecret()
+    {
+        $f3 = \Base::instance();
+        return $this->authenticateClientIdSecret($f3->get('REQUEST.PHP_AUTH_USER'), $f3->get('REQUEST.PHP_AUTH_PW'));
     }
 
     /**
@@ -356,107 +376,69 @@ class API
      *
      * Or by URL query string param - ?access_token=$access_token
      *
-     * @param string $token the token to validate, or get from the REQUEST
+     * Sets hive vars: user[] (mandatory), api_app[] (optional) and user_scopes[], user_groups[]
      *
-     * @return false or array the token
+     * @param array $params optional params
+     *
+     * @return boolean true/false on valid access credentials
      */
-    protected function validateAccess($token = null)
+    protected function validateAccess(array $params = [])
     {
         $f3 = \Base::instance();
-        $usersModel = Models\Users::instance();
-        $usersMapper = $usersModel->getMapper();
+
+        // if forcing access to https die
+        if ('http' == $f3->get('SCHEME') && !empty($f3->get('app.api_https'))) {
+            $this->failure('api_connection_error', "Connection only allowed via HTTPS!", 400);
+            $this->setOAuthError('unauthorized_client');
+            return;
+        }
 
         $token = $f3->get('REQUEST.access_token');
-
         if (!empty($token)) {
-            $access_token = $usersMapper->verifyBearerAccessToken($token);
-        }
-
-        // check if login via http auth
-        $phpAuthUser = $f3->get('REQUEST.PHP_AUTH_USER');
-
-        if (!empty($phpAuthUser)) {
-
-                // try to login as email:password
-            if (empty($access_token)) {
-
-                $userLogin = $this->basicAuthenticateLoginPassword();
-                if (!empty($userLogin)) {
-                    $access_token = $usersMapper->getAccessTokenByEmail($phpAuthUser);
-                }
-
-            }
-        }
-
-         // access token found from basic-auth creds
-        if (!empty($access_token)) {
-            $f3->set('REQUEST.access_token', $access_token);
-        }
-
-        // get token from request
-        if (empty($token)) {
-            $token = $f3->get('REQUEST.access_token');
-        }
-
-        if (empty($token)) {
-            // one last try, try if auth is via OAuth Token
-            // $ curl -u '<email>:<token>' https://f3-cms.local/api/user
-            $user = $f3->get('REQUEST.PHP_AUTH_USER');
-
-            if (!empty($user)) {
-
-                $access_token = $usersMapper->getAccessTokenByEmail($user);
-
-                if (!empty($access_token)) {
-                    $token = $f3->get('REQUEST.PHP_AUTH_PW');
-                    $token = ($token == $access_token) ? $token : null;
-                }
-            }
-
-            if (empty($token)) {
-                $this->setOAuthError('invalid_request');
-                $this->failure(4007, 'Missing bearer access token', 400);
-
+            // fetch token and check expiry
+/*
+            if (time() > $expiry) {
+                $this->failure('authentication_error', "The token expired!", 401);
+                $this->setOAuthError('invalid_grant');
                 return false;
             }
+*/
         }
 
-        // @todo: some user account checks here to make sure is allowed to make requests
-
-        // we now have a valid access token for f3
-        if (!empty($access_token)) {
-            $f3->set('access_token', $access_token);
+        // login with client_id and client_secret in request
+        $clientId = $f3->get('REQUEST.client_id');
+        $clientSecret = $f3->get('REQUEST.client_secret');
+        if (!empty($clientId) && !empty($clientSecret)
+                && $this->authenticateClientIdSecret($clientId, $clientSecret)) {
+            $appLogin = true;
         }
 
-        return $access_token;
+        // check if login via http basic auth
+        $phpAuthUser = $f3->get('REQUEST.PHP_AUTH_USER');
+        if (!empty($phpAuthUser)) {
+            // try to login as email:password
+            if ($this->basicAuthenticateLoginPassword()) {
+            } elseif ($this->basicAuthenticateClientIdSecret()) {
+                $appLogin = true; // client_id:client_secret
+            }
+        }
+
+        $userAuthenticated = false;
+        if (!$userAuthenticated) {
+            $this->failure('authentication_error', "Not possible to authenticate the request.", 400);
+            $this->setOAuthError('invalid_credentials');
+
+            return false;
+        }
+
+        return true;
     }
 
-// unknown catch-all api method
+    // unknown catch-all api method
     public function unknown($f3, $params)
     {
-        $this->failure(4998, 'Unknown API Request', 400);
-    }
-
-// set relative URL
-    protected function rel($path)
-    {
-        $f3 = \Base::instance();
-        $this->data['rel'] = Helpers\Url::internal($path);
-        return;
-    }
-
-// set canonical URL
-    protected function href($path = null)
-    {
-        $f3 = \Base::instance();
-
-        if (empty($path)) {
-            $this->data['href'] = $f3->get('REALM');
-        } else {
-            $this->data['href'] = Helpers\Url::internal($path);
-        }
-
-        return;
+        $this->setOAuthError('invalid_request');
+        $this->failure('api_connection_error', 'Unknown API Request', 400);
     }
 
     /**
@@ -467,7 +449,6 @@ class API
      */
     protected function page_results($data)
     {
-
         $f3 = \Base::instance();
 
         $page = $f3->get('REQUEST.page');
@@ -495,7 +476,7 @@ class API
 
         if ($page > $pages) {
             $page = $pages;
-        } else if (1 >= $pages) {
+        } elseif (1 >= $pages) {
             $per_page = count($data);
         }
 
@@ -544,22 +525,8 @@ class API
 
         return array_slice($data, $from, $per_page);
     }
-
-    // route /api
-    public function api($f3, $params)
-    {
-        $this->params['http_methods'] = 'GET,HEAD';
-        $this->rel('/api');
-    }
-
-    public function user($f3, $params)
-    {
-        $this->validateAccess();
-
-        $this->params['http_methods'] = 'GET,HEAD';
-        $this->data = [
-            'access_token' => $f3->get('access_token')
-        ];
-    }
-
 }
+
+class APIServerException extends \Exception
+{
+};
