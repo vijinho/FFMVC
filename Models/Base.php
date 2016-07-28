@@ -30,7 +30,12 @@ abstract class Base extends \Prefab
         foreach ($params as $k => $v) {
             $this->$k = $v;
         }
+
+        // save default validation rules and filter rules in-case we add rules
+        $this->validationRulesDefault = $this->validationRules;
+        $this->filterRulesDefault = $this->filterRules;
     }
+
 }
 
 
