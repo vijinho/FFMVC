@@ -13,7 +13,6 @@ use FFMVC\Helpers as Helpers;
 abstract class Base
 {
     use Traits\Logger;
-    use Traits\Audit;
     use Traits\Notification;
     use Traits\Validation;
     
@@ -54,10 +53,6 @@ abstract class Base
 
         if (empty($this->notificationObject)) {
             $this->notificationObject = Helpers\Notifications::instance();
-        }
-
-        if (!array_key_exists('auditObject', $params)) {
-            $this->auditObject = Models\Audit::instance();
         }
 
         if (empty($this->loggerObject)) {
