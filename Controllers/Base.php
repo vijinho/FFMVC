@@ -16,7 +16,6 @@ use FFMVC\Models as Models;
 abstract class Base
 {
     use Traits\Logger;
-    use Traits\Audit;
     use Traits\Notification;
     use Traits\UrlHelper;
     use Traits\CSRF;
@@ -31,10 +30,6 @@ abstract class Base
 
         if (!array_key_exists('loggerObject', $params)) {
             $this->loggerObject = \Registry::get('logger');
-        }
-
-        if (!array_key_exists('auditObject', $params)) {
-            $this->auditObject = Models\Audit::instance();
         }
 
         if (!array_key_exists('notificationObject', $params)) {

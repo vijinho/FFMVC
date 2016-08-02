@@ -83,8 +83,6 @@ class Notifications extends \Prefab
         $logger = \Registry::get('logger');
         $notifications = $f3->get('notifications');
 
-        $audit = Models\Audit::instance();
-
         if ($notifications && 3 <= $debug && $logger && method_exists($logger, 'write')) {
             $uuid = $f3->get('uuid');
             $debugInfo = [
@@ -95,13 +93,6 @@ class Notifications extends \Prefab
             foreach ($notifications as $type => $messages) {
                 foreach ($messages as $m) {
                     $msg = 'Notification: ' . trim($uuid . ' ' . $type . ' ' . $m);
-                    $audit->log([
-                        'users_uuid' => $uuid,
-                        'actor' => 'NOTIFICATIONS',
-                        'event' => 'NOTIFICATION_' . strtoupper($type),
-                        'description' => $m,
-                        'debug' => json_encode($debugInfo, JSON_PRETTY_PRINT)
-                    ]);
                     $logger->write($msg);
                 }
             }

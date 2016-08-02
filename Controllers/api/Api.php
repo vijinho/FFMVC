@@ -17,7 +17,6 @@ use FFMVC\Models\Mappers as Mappers;
 class API
 {
     use Traits\Logger;
-    use Traits\Audit;
     use Traits\UrlHelper;
     use Traits\Validation;
 
@@ -174,10 +173,6 @@ class API
 
         if (!array_key_exists('loggerObject', $params)) {
             $this->loggerObject = \Registry::get('logger');
-        }
-
-        if (!array_key_exists('auditObject', $params)) {
-            $this->auditObject = Models\Audit::instance();
         }
 
         if (!array_key_exists('urlHelperObject', $params)) {
