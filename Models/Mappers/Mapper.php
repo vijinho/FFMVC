@@ -93,34 +93,87 @@ abstract class Mapper extends \DB\SQL\Mapper
         $this->filterRulesDefault = $this->filterRules;
     }
 
+    /**
+     * Cast the mapper data to an array using only provided fields
+     *
+     * @param mixed string|array fields to return in response
+     * @param array optional data optional data to use instead of fields
+     * @return array $data
+     */
+    public function castFields($fields = null, array $data = [])
+    {
+        if (!empty($fields)) {
+            if (is_string($fields)) {
+                $fields = preg_split("/[\s,]+/", strtolower($fields));
+            } else if (!is_array($fields)) {
+                $fields = [];
+            }
+        }
+
+        if (empty($data) || !is_array($data)) {
+            $data = $this->cast();
+        }
+
+        if (empty($fields)) {
+            $fields = array_keys($data);
+        }
+
+        // remove fields not in the list
+        foreach ($data as $k => $v) {
+            if (!in_array($k, $fields)) {
+                unset($data[$k]);
+            }
+        }
+
+        return $data;
+    }
 
     /**
      * Cast the mapper data to an array and modify (for external clients typically)
      * using the visible fields and names for export, converting dates to unixtime
+     * optionally pass in a comma (or space)-separated list of fields or an array of fields
      *
-     * @param boolean $unmodified should the data be mapper original or modified?
+     * @param mixed string|array fields to return in response
+     * @param array optional data optional data to use instead of fields
      * @return array $data
      */
-    public function &exportArray($unmodified = false)
+    public function exportArray($fields = null, array $data = [])
     {
-        $data = $this->cast();
-        if (!empty($unmodified)) {
-            return $data;
+        if (!empty($fields)) {
+            if (is_string($fields)) {
+                $fields = preg_split("/[\s,]+/", strtolower($fields));
+            } else if (!is_array($fields)) {
+                $fields = [];
+            }
         }
+
+        if (empty($data) || !is_array($data)) {
+            $data = $this->cast();
+        }
+
         foreach ($data as $k => $v) {
             if (empty($this->fieldsVisible[$k])) {
                 unset($data[$k]);
                 continue;
             } elseif (true !== $this->fieldsVisible[$k]) {
                 unset($data[$k]);
-                $data[$this->fieldsVisible[$k]] = $v;
+                $k = $this->fieldsVisible[$k];
+                $data[$k] = $v;
             }
             // convert date to unix timestamp
             if ('updated' == $k || 'created' == $k || (
                 strlen($v) == 19 && preg_match("/^[\d]{4}-[\d]{2}-[\d]{2}[\s]+[\d]{2}:[\d]{2}:[\d]{2}/", $v, $m))) {
-                $data[$k] = strtotime($v);
+                $time = strtotime($v);
+                if ($time < 0) {
+                    $time = 0;
+                }
+                $data[$k] = $time;
+            }
+            if (!empty($fields) && $k !== 'id' && $k !== 'object' && !in_array($k, $fields)) {
+                unset($data[$k]);
             }
         }
+        $data['object'] = strtolower(substr(get_class($this), 21));
         return $data;
     }
 
@@ -128,13 +181,13 @@ abstract class Mapper extends \DB\SQL\Mapper
     /**
      * Convert the mapper object to format suitable for JSON
      *
-     * @param boolean $unmodified should the data be mapper original or modified?
      * @param boolean $public cast as public (visible) data or raw db data?
+     * @param mixed optional string|array fields to include
      * @return json
      */
-    public function &exportJson($unmodified = false)
+    public function exportJson($unmodified = false, $fields = null)
     {
-        return json_encode(empty($public) ? $this->cast() : $this->exportArray($unmodified), JSON_PRETTY_PRINT);
+        return json_encode(empty($unmodified) ? $this->castFields($fields) : $this->exportArray($fields), JSON_PRETTY_PRINT);
     }
 
 
@@ -146,11 +199,13 @@ abstract class Mapper extends \DB\SQL\Mapper
      */
     public function setUUID($field = 'uuid')
     {
+        $db = \Registry::get('db');
         // a proper uuid is 36 characters
-        if (in_array($field, $this->fields()) && (null == $this->$field || strlen($this->$field !== 36))) {
+        if (in_array($field, $this->fields()) &&
+            (empty($this->$field) || strlen($this->$field) < 36)) {
             $tmp = clone $this;
             $uuid = Helpers\Str::uuid();
-            while ($tmp->load(["$field = ?", $uuid])) {
+            while ($tmp->load([$db->quotekey($field) . ' = ?', $uuid])) {
                 $uuid = Helpers\Str::uuid();
             }
             unset($tmp);

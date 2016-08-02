@@ -1,6 +1,7 @@
 <?php
 
 namespace FFMVC\Helpers;
+use FFMVC\Models as Models;
 
 /**
  * Notifications Helper Class.
@@ -72,7 +73,6 @@ class Notifications extends \Prefab
         }
     }
 
-
     /**
      * Log notifications
      */
@@ -82,10 +82,26 @@ class Notifications extends \Prefab
         $debug = $f3->get('DEBUG');
         $logger = \Registry::get('logger');
         $notifications = $f3->get('notifications');
+
+        $audit = Models\Audit::instance();
+
         if ($notifications && 3 <= $debug && $logger && method_exists($logger, 'write')) {
+            $uuid = $f3->get('uuid');
+            $debugInfo = [
+                'IP' => $f3->get('IP'),
+                'URI' => $f3->get('REALM'),
+                'REQUEST' => $f3->get('REQUEST'),
+            ];
             foreach ($notifications as $type => $messages) {
                 foreach ($messages as $m) {
-                    $msg = ' Notification: ' . trim($type . ' ' . $m);
+                    $msg = 'Notification: ' . trim($uuid . ' ' . $type . ' ' . $m);
+                    $audit->log([
+                        'users_uuid' => $uuid,
+                        'actor' => 'NOTIFICATIONS',
+                        'event' => 'NOTIFICATION_' . strtoupper($type),
+                        'description' => $m,
+                        'debug' => json_encode($debugInfo, JSON_PRETTY_PRINT)
+                    ]);
                     $logger->write($msg);
                 }
             }

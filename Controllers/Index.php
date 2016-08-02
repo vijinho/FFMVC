@@ -17,8 +17,7 @@ class Index extends Base
     public function index($f3, $params)
     {
         $this->notify('Welcome!', 'success');
-        $this->log('poop');
-        
+
         echo \View::instance()->render('www/index/index.phtml');
     }
 }
