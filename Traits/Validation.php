@@ -2,6 +2,7 @@
 
 namespace FFMVC\Traits;
 
+use FFMVC\Helpers as Helpers;
 
 /**
  * Handle validation (via GUMP or GUMP-inheriting validation class)
@@ -200,7 +201,7 @@ trait Validation
         return $validator->filter($data);
     }
 
-    
+
     /**
      * Filter and validate
      *

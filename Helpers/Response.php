@@ -26,9 +26,8 @@ class Response extends \Prefab
     {
         $f3 = \Base::instance();
 
-        $headers = [
-            'Content-type' => 'application/json; charset=utf-8'
-        ];
+        $headers = array_key_exists('headers', $params) ? $params['headers'] : [];
+        $headers['Content-type'] = 'application/json; charset=utf-8';
 
         $ttl = array_key_exists('ttl', $params) ? $params['ttl'] : 0; // cache for $ttl seconds
         if (empty($ttl)) {
@@ -39,7 +38,7 @@ class Response extends \Prefab
 
         $headers['Expires'] = Time::http(array_key_exists('expires', $params) ? $params['expires'] : time() + $ttl);
         $headers['Access-Control-Max-Age'] = $ttl;
-        $headers['Access-Control-Allow-Methods'] = array_key_exists('http_methods', $params) ? $params['http_methods'] : 'OPTIONS, HEAD, GET, POST, PUT, PATCH, DELETE';
+        $headers['Access-Control-Allow-Methods'] = array_key_exists('http_methods', $params) ? $params['http_methods'] : ''; //'OPTIONS, HEAD, GET, POST, PUT, PATCH, DELETE';
         $headers['Access-Control-Allow-Origin'] = array_key_exists('acl_origin', $params) ? $params['acl_origin'] : '*';
         $headers['Access-Control-Allow-Credentials'] = array_key_exists('acl_credentials', $params) ? $params['credentials'] : 'false';
 
@@ -53,10 +52,15 @@ class Response extends \Prefab
         if (empty($output)) {
             return ['headers' => $headers, 'body' => $body];
         } else {
+
                 // send the headers + data
             foreach ($headers as $header => $value) {
+                if (is_string($value) && empty($value)) {
+                    continue;
+                }
                 header($header.': '.$value);
             }
+            header_remove('Set-Cookie'); // prevent php session
             // default status is 200 - OK
             $f3->status(array_key_exists('http_status', $params) ? $params['http_status'] : 200);
 

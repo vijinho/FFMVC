@@ -13,7 +13,7 @@ trait Logger
 {
 
     /**
-     * @var object logging objects
+     * @var object logging object
      */
     protected $loggerObject;
 

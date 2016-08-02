@@ -2,7 +2,6 @@
 
 namespace FFMVC\Traits;
 
-
 /**
  * Add user notifications messages, typically for user feedback from web pages.
  * The class constructor must set a member $notificationObject which contains
@@ -14,7 +13,7 @@ trait Notification
 {
 
     /**
-     * @var object user notifications objects
+     * @var object user notifications object
      */
     protected $notificationObject;
 

@@ -2,6 +2,7 @@
 
 namespace FFMVC\Models;
 
+use FFMVC\Traits as Traits;
 use FFMVC\Models\Mappers as Mappers;
 
 /**
@@ -14,6 +15,7 @@ use FFMVC\Models\Mappers as Mappers;
  */
 abstract class DB extends Base
 {
+    use Traits\Validation;
 
     /**
      * @var object database class
@@ -34,11 +36,6 @@ abstract class DB extends Base
      * @var mapper for class
      */
     protected $mapper;
-
-    /**
-     * @var object logging class
-     */
-    protected $logger;
 
     /**
      * initialize with array of params, 'db' and 'logger' can be injected
