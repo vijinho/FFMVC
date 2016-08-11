@@ -169,10 +169,6 @@ class API
             $this->loggerObject = \Registry::get('logger');
         }
 
-        if (!array_key_exists('urlHelperObject', $params)) {
-            $this->urlHelperObject = Helpers\Url::instance();
-        }
-
         // inject class members
         foreach ($params as $k => $v) {
             $this->$k = $v;
