@@ -48,6 +48,7 @@ class App extends \Prefab
             }
         }
 
+
         // these take multiple paths
         $language = $f3->get('LANGUAGE');
         foreach (['LOCALES', 'UI'] as $key) {
@@ -102,19 +103,6 @@ class App extends \Prefab
             $f3->set('db.dsn', \FFMVC\Helpers\DB::instance()->createDbDsn($params), $ttl);
         }
 
-        if (!empty($f3->get('app.gettext'))) {
-            // will now fall back to client browser language
-            $language = empty($language) ? substr($f3->get('LANGUAGE'), 0, 2) : $language;
-            // use LANG because f3 appends to LANGUAGE when setting
-            $f3->set('LANG', $language);
-            putenv('LANG=' . $language);
-            setlocale(LC_ALL, $language);
-            $domain = 'messages';
-            bindtextdomain($domain, $f3->get('HOMEDIR') . '/app/i18n');
-            bind_textdomain_codeset($domain, 'UTF-8');
-            textdomain($domain);
-        }
-
         // setup outgoing email server for php mail command
         ini_set('SMTP', $f3->get('email.host'));
         ini_set('sendmail_from', $f3->get('email.from'));
@@ -122,45 +110,46 @@ class App extends \Prefab
         ini_set('user', $f3->get('email.user'));
         ini_set('password', $f3->get('email.pass'));
 
+        if (PHP_SAPI !== 'cli') {
+            return;
+        }
+
         // set default error handler output for CLI mode
-        if (PHP_SAPI == 'cli') {
+        $f3->set('ONERROR', function ($f3) {
+            $e = $f3->get('ERROR');
+                // detailed error notifications because it's not public
+            $errorMessage = sprintf("Exception %d: %s\n%s\n\n%s\n",
+                $e['code'], $e['status'], $e['text'], $e['trace']
+            );
 
-            $f3->set('ONERROR', function ($f3) {
-                $e = $f3->get('ERROR');
-                    // detailed error notifications because it's not public
-                $errorMessage = sprintf("Exception %d: %s\n%s\n\n%s\n",
-                    $e['code'], $e['status'], $e['text'], $e['trace']
-                );
-
-                print_r($e);
-                $logger = \Registry::get($logger);
-                if (is_object($logger)) {
-                    $logger->write($errorMessage);
-                }
-            });
-
-            // fix for f3 not populating $_GET when run on the command line
-            $uri = $f3->get('SERVER.REQUEST_URI');
-            $querystring = preg_split("/&/", \UTF::instance()->substr($uri, 1 + \UTF::instance()->strpos($uri . '&', '?')));
-            if (!empty($querystring) && count($querystring)) {
-
-                foreach ($querystring as $pair) {
-
-                    if (0 == count($pair)) {
-                        continue;
-                    }
-                    $val = preg_split("/=/", $pair);
-
-                    if (!empty($val) && count($val) == 2) {
-                        $k = $val[0];
-                        $v = $val[1];
-                        if (!empty($k) && !empty($v)) {
-                            $_GET[$k] = $v;
-                        }
-                    }
-                }
-                $f3->set('GET', $_GET);
+            print_r($e);
+            $logger = \Registry::get($logger);
+            if (is_object($logger)) {
+                $logger->write($errorMessage);
             }
+        });
+
+        // fix for f3 not populating $_GET when run on the command line
+        $uri = $f3->get('SERVER.REQUEST_URI');
+        $querystring = preg_split("/&/", \UTF::instance()->substr($uri, 1 + \UTF::instance()->strpos($uri . '&', '?')));
+        if (!empty($querystring) && count($querystring)) {
+
+            foreach ($querystring as $pair) {
+
+                if (0 == count($pair)) {
+                    continue;
+                }
+                $val = preg_split("/=/", $pair);
+
+                if (!empty($val) && count($val) == 2) {
+                    $k = $val[0];
+                    $v = $val[1];
+                    if (!empty($k) && !empty($v)) {
+                        $_GET[$k] = $v;
+                    }
+                }
+            }
+            $f3->set('GET', $_GET);
         }
     }
 
