@@ -2,7 +2,7 @@
 
 namespace FFMVC\Controllers;
 
-use FFMVC\{Traits, Helpers, Models};
+use FFMVC\{Helpers, Models};
 
 /**
  * Base Controller Class.
@@ -13,12 +13,6 @@ use FFMVC\{Traits, Helpers, Models};
  */
 abstract class Base
 {
-    use Traits\ControllerSecurity,
-        Traits\Logger,
-        Traits\Notification,
-        Traits\UrlHelper,
-        Traits\Validation;
-
     /**
      * initialize.
      */

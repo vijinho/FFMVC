@@ -2,10 +2,8 @@
 
 namespace FFMVC\Controllers\API;
 
-use FFMVC\Traits as Traits;
 use FFMVC\Helpers as Helpers;
 use FFMVC\Models as Models;
-use FFMVC\Models\Mappers as Mappers;
 
 /**
  * API Controller Class.
@@ -16,10 +14,6 @@ use FFMVC\Models\Mappers as Mappers;
  */
 class API
 {
-    use Traits\Logger;
-    use Traits\UrlHelper;
-    use Traits\Validation;
-
     /**
      * version.
      *

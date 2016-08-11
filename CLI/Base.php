@@ -2,7 +2,7 @@
 
 namespace FFMVC\CLI;
 
-use FFMVC\{Traits, Controllers, Helpers, Models, Models\Mappers as Mappers};
+use FFMVC\{Controllers, Helpers};
 
 /**
  * Base CLI Controller Class.
@@ -11,10 +11,6 @@ use FFMVC\{Traits, Controllers, Helpers, Models, Models\Mappers as Mappers};
  */
 abstract class Base
 {
-    use Traits\Logger,
-        Traits\Notification,
-        Traits\Validation;
-
     /**
      * @var object database class
      */
