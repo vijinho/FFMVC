@@ -11,16 +11,26 @@ namespace FFMVC\CLI;
  */
 class Index extends Base
 {
-    public function index($f3, $params)
+    /**
+     * @param \Base $f3
+     * @param array $params
+     * @return void
+     */
+    public function index($f3, array $params)
     {
         $cli = $this->cli;
         $cli->shoutBold(__METHOD__);
         $cli->shout("Hello World!");
     }
 
-    // example to test if already running
-    // run cli.php '/index/running' in two different terminals
-    public function running($f3, $params)
+    /**
+     * example to test if already running
+     * run cli.php '/index/running' in two different terminals
+     * @param \Base $f3
+     * @param array $params
+     * @return void
+     */
+    public function running($f3, array $params)
     {
         $cli = $this->cli;
         $cli->shoutBold(__METHOD__);
@@ -28,10 +38,9 @@ class Index extends Base
         // use process id for log notifications
         $mypid = getmypid();
         $pid = $mypid['PID'];
-        $log = \Registry::get('logger');
         $msg = $pid . ': Starting...';
         $cli->shout($msg);
-        $log->write($msg);
+        $this->log($msg);
 
         // check if already running, quit if so
         exec("ps auxww | grep -i index/running | grep -v grep", $ps);
@@ -39,8 +48,8 @@ class Index extends Base
         if (1 < count($ps)) {
             $msg = $pid . ': Already running! Quitting.';
             $cli->shout($msg);
-            $log->write($ps[0]);
-            $log->write($msg);
+            $this->log($ps[0]);
+            $this->log($msg);
             return false;
         }
 

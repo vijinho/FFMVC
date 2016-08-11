@@ -16,12 +16,10 @@ class Time extends \Prefab
      *
      * @param optional int    $unixtime the unix time (null = now)
      * @param optional string $dbms     the database software the timestamp is for
-     *
      * @return string date in format of database driver
-     *
      * @todo add a switch for the f3 database driver and set the timestamp
      */
-    public static function database($unixtime = null, $dbms = null)
+    public static function database(int $unixtime = null, string $dbms = null): string
     {
 
         // use current time if bad time value or unset
@@ -47,7 +45,7 @@ class Time extends \Prefab
      * @param int time php time value
      * @param string $zone timezone
      */
-    public static function HTTP($unixtime = null, $zone = '')
+    public static function HTTP(int $unixtime = null, string $zone = ''): string
     {
         $f3 = \Base::instance();
 

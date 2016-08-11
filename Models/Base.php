@@ -13,8 +13,8 @@ use FFMVC\Traits as Traits;
  */
 abstract class Base extends \Prefab
 {
-    use Traits\Logger;
-    use Traits\Validation;
+    use Traits\Logger,
+        Traits\Validation;
 
     /**
      * initialize with array of params, 'logger' can be injected
@@ -35,23 +35,5 @@ abstract class Base extends \Prefab
         $this->validationRulesDefault = $this->validationRules;
         $this->filterRulesDefault = $this->filterRules;
     }
-
-}
-
-
-class BaseException extends \Exception
-{
-
-}
-
-
-class BaseClientException extends \Exception
-{
-
-}
-
-
-class BaseServerException extends \Exception
-{
 
 }

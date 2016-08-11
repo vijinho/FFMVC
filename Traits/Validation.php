@@ -201,6 +201,7 @@ trait Validation
         return $validator->filter($data);
     }
 
+
     /**
      * Filter and validate
      *
@@ -263,17 +264,17 @@ trait Validation
                 switch ($e['rule']) {
 
                     case 'validate_exact_len':
-                        $msg = sprintf('%s must be exactly %d characters in length.',
+                        $msg = sprintf(_('%s must be exactly %d characters in length.'),
                             $fieldname, $e['param']);
                         break;
 
                     case 'validate_min_len':
-                        $msg = sprintf('%s must be at least %d characters.',
+                        $msg = sprintf(_('%s must be at least %d characters.'),
                             $fieldname, $e['param']);
                         break;
 
                     case 'validate_max_len':
-                        $msg = sprintf('%s must at most %d characters.',
+                        $msg = sprintf(_('%s must at most %d characters.'),
                             $fieldname, $e['param']);
                         break;
 
@@ -282,12 +283,12 @@ trait Validation
                         break;
 
                     case 'validate_valid_email':
-                        $msg = sprintf('%s must be a valid email address.',
+                        $msg = sprintf(_('%s must be a valid email address.'),
                             $fieldname);
                         break;
 
                     case 'validate_required':
-                        $msg = sprintf('%s must be entered.', $fieldname);
+                        $msg = sprintf(_('%s must be entered.'), $fieldname);
                         break;
 
                     default:

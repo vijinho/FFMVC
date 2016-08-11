@@ -19,9 +19,9 @@ class Url extends \Prefab
      * @param string $url name of the url alias
      * @param mixed $params url params as string or array
      * @param boolean $https force it to be https?
-     * @return type
+     * @return string
      */
-    public static function external($url, $params = null, $https = true)
+    public static function external(string $url, $params = null, bool $https = true): string
     {
         $f3 = \Base::instance();
 
@@ -55,9 +55,9 @@ class Url extends \Prefab
      * @param string $url name of the url alias
      * @param mixed $params url params as string or array
      * @param boolean $full default true
-     * @return type
+     * @return string
      */
-    public static function internal($url, $params = null, $full = true)
+    public static function internal(string $url, $params = null, bool $full = true): string
     {
         $f3 = \Base::instance();
 

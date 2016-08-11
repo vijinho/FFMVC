@@ -2,8 +2,7 @@
 
 namespace FFMVC\CLI;
 
-use FFMVC\Traits as Traits;
-use FFMVC\Helpers as Helpers;
+use FFMVC\{Traits, Controllers, Helpers, Models, Models\Mappers as Mappers};
 
 /**
  * Base CLI Controller Class.
@@ -12,11 +11,10 @@ use FFMVC\Helpers as Helpers;
  */
 abstract class Base
 {
-    use Traits\Logger;
-    use Traits\Audit;
-    use Traits\Notification;
-    use Traits\Validation;
-    
+    use Traits\Logger,
+        Traits\Notification,
+        Traits\Validation;
+
     /**
      * @var object database class
      */
@@ -56,10 +54,6 @@ abstract class Base
             $this->notificationObject = Helpers\Notifications::instance();
         }
 
-        if (!array_key_exists('auditObject', $params)) {
-            $this->auditObject = Models\Audit::instance();
-        }
-
         if (empty($this->loggerObject)) {
             $this->loggerObject = \Registry::get('logger');
         }
@@ -70,15 +64,24 @@ abstract class Base
         }
     }
 
-
-    public function beforeRoute($f3, $params)
+    /**
+     * @param \Base $f3
+     * @param array $params
+     * @return void
+     */
+    public function beforeRoute($f3, array $params)
     {
         $cli = $this->cli;
         $cli->blackBoldUnderline("CLI Script");
     }
 
 
-    public function afterRoute($f3, $params)
+    /**
+     * @param \Base $f3
+     * @param array $params
+     * @return void
+     */
+    public function afterRoute($f3, array $params)
     {
         $cli = $this->cli;
         $cli->shout('Finished.');

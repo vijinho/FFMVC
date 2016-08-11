@@ -2,8 +2,7 @@
 
 namespace FFMVC\Models;
 
-use FFMVC\Traits as Traits;
-use FFMVC\Models\Mappers as Mappers;
+use FFMVC\{Traits, Models\Mappers as Mappers};
 
 /**
  * Base Database Class
@@ -15,8 +14,6 @@ use FFMVC\Models\Mappers as Mappers;
  */
 abstract class DB extends Base
 {
-    use Traits\Validation;
-
     /**
      * @var object database class
      */
@@ -79,22 +76,4 @@ abstract class DB extends Base
     {
         return $this->mapper;
     }
-}
-
-
-class BaseDbException extends \Exception
-{
-
-}
-
-
-class BaseDbClientException extends \Exception
-{
-
-}
-
-
-class BaseDbServerException extends \Exception
-{
-
 }

@@ -19,7 +19,7 @@ class Str extends \Prefab
      * @param string $chars characters to use for random string
      * @return string password
      */
-    public static function random($length = 10, $chars = null)
+    public static function random(int $length = 10, string $chars = null): string
     {
         if (empty($chars)) {
             // ignore characters which can be consued, i, l, 1, o, O, 0 etc
@@ -48,7 +48,7 @@ class Str extends \Prefab
      * @link http://php.net/manual/en/function.hash-hmac.php
      * @link http://fatfreeframework.com/base#hash
      */
-    public static function salted($string, $pepper = '')
+    public static function salted(string $string, string $pepper = ''): string
     {
         $f3 = \Base::instance();
         $salt = $f3->get('app.salt');
@@ -64,7 +64,7 @@ class Str extends \Prefab
      * @param string $pepper string pepper to add to the salted string for extra security
      * @return string $encoded
      */
-    public static function password($string, $pepper = '')
+    public static function password(string $string, string $pepper = ''): string
     {
         return \Base::instance()->hash(self::salted($string, $pepper));
     }
@@ -78,22 +78,64 @@ class Str extends \Prefab
      * @param string $pepper string pepper to add to the salted string for extra security
      * @return boolean success on match
      */
-    public static function passwordVerify($hashed_password, $string, $pepper = '')
+    public static function passwordVerify(string $hashed_password, string $string, string $pepper = ''): string
     {
         return ($hashed_password === \Base::instance()->hash(self::salted($string, $pepper)));
     }
 
 
     /**
-     * generate uuid string
-     *
-     * @return string uuid
+     * Generate name based md5 UUID (version 3).
+     * @example '7e57d004-2b97-0e7a-b45f-5387367791cd'
+     * @copyright Copyright (c) 2011 François Zaninotto and others
+     * @url https://github.com/fzaninotto/Faker
+     * @return string $uuid
      */
-    public static function uuid()
+    public static function uuid(): string
     {
-        $faker = \Faker\Factory::create();
+        // fix for compatibility with 32bit architecture; seed range restricted to 62bit
+        $seed = mt_rand(0, 2147483647) . '#' . mt_rand(0, 2147483647);
 
-        return $faker->uuid;
+        // Hash the seed and convert to a byte array
+        $val = md5($seed, true);
+        $byte = array_values(unpack('C16', $val));
+
+        // extract fields from byte array
+        $tLo = ($byte[0] << 24) | ($byte[1] << 16) | ($byte[2] << 8) | $byte[3];
+        $tMi = ($byte[4] << 8) | $byte[5];
+        $tHi = ($byte[6] << 8) | $byte[7];
+        $csLo = $byte[9];
+        $csHi = $byte[8] & 0x3f | (1 << 7);
+
+        // correct byte order for big edian architecture
+        if (pack('L', 0x6162797A) == pack('N', 0x6162797A)) {
+            $tLo = (($tLo & 0x000000ff) << 24) | (($tLo & 0x0000ff00) << 8)
+                | (($tLo & 0x00ff0000) >> 8) | (($tLo & 0xff000000) >> 24);
+            $tMi = (($tMi & 0x00ff) << 8) | (($tMi & 0xff00) >> 8);
+            $tHi = (($tHi & 0x00ff) << 8) | (($tHi & 0xff00) >> 8);
+        }
+
+        // apply version number
+        $tHi &= 0x0fff;
+        $tHi |= (3 << 12);
+
+        // cast to string
+        $uuid = sprintf(
+            '%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x',
+            $tLo,
+            $tMi,
+            $tHi,
+            $csHi,
+            $csLo,
+            $byte[10],
+            $byte[11],
+            $byte[12],
+            $byte[13],
+            $byte[14],
+            $byte[15]
+        );
+
+        return $uuid;
     }
 
     /**

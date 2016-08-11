@@ -36,10 +36,7 @@ class Validator extends \GUMP
      *
      * @param mixed $input
      * @param array optinal $ruleset ot use class rulset
-     *
      * @return mixed
-     *
-     * @throws Exception
      */
     public function filter(array $input, array $ruleset = [])
     {
@@ -51,10 +48,7 @@ class Validator extends \GUMP
      *
      * @param mixed $input
      * @param array optinal $ruleset ot use class rulset
-     *
      * @return mixed
-     *
-     * @throws Exception
      */
     public function validate(array $input, array $ruleset = [])
     {
@@ -67,8 +61,8 @@ class Validator extends \GUMP
      *  The callback function receives two arguments:
      *  The value to filter, and any parameters used in the filter rule. It should returned the filtered value.
      *
-     * @param type $value
-     * @param type $param
+     * @param $value
+     * @param array $param
      *
      * @return type
      */
@@ -84,8 +78,8 @@ class Validator extends \GUMP
      *  The callback function receives two arguments:
      *  The value to filter, and any parameters used in the filter rule. It should returned the filtered value.
      *
-     * @param type $value
-     * @param type $param
+     * @param $value
+     * @param array $param
      *
      * @return type
      */
@@ -100,8 +94,8 @@ class Validator extends \GUMP
      * The callback function receives two arguments:
      * The value to filter, and any parameters used in the filter rule. It should returned the filtered value.
      *
-     * @param type $value
-     * @param type $param
+     * @param $value
+     * @param array $param
      *
      * @return type
      * @link https://fatfreeframework.com/utf-unicode-string-manager#ltrim
@@ -117,8 +111,8 @@ class Validator extends \GUMP
      * The callback function receives two arguments:
      * The value to filter, and any parameters used in the filter rule. It should returned the filtered value.
      *
-     * @param type $value
-     * @param type $param
+     * @param $value
+     * @param array $param
      *
      * @return type
      * @link https://fatfreeframework.com/utf-unicode-string-manager#rtrim
@@ -134,8 +128,8 @@ class Validator extends \GUMP
      * The callback function receives two arguments:
      * The value to filter, and any parameters used in the filter rule. It should returned the filtered value.
      *
-     * @param type $value
-     * @param type $param
+     * @param $value
+     * @param array $param
      *
      * @return type
      * @link https://fatfreeframework.com/utf-unicode-string-manager#trim
@@ -151,8 +145,8 @@ class Validator extends \GUMP
      * The callback function receives two arguments:
      * The value to filter, and any parameters used in the filter rule. It should returned the filtered value.
      *
-     * @param type $value
-     * @param type $param
+     * @param $value
+     * @param array $param
      *
      * @return type
      * @link https://fatfreeframework.com/utf-unicode-string-manager#translate
@@ -168,8 +162,8 @@ class Validator extends \GUMP
      * The callback function receives two arguments:
      * The value to filter, and any parameters used in the filter rule. It should returned the filtered value.
      *
-     * @param type $value
-     * @param type $param
+     * @param $value
+     * @param array $param
      *
      * @return type
      * @link https://fatfreeframework.com/utf-unicode-string-manager#emojify

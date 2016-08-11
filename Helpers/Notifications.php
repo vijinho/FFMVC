@@ -2,6 +2,8 @@
 
 namespace FFMVC\Helpers;
 
+use FFMVC\{Helpers, Models};
+
 /**
  * Notifications Helper Class.
  *
@@ -12,14 +14,21 @@ namespace FFMVC\Helpers;
 class Notifications extends \Prefab
 {
 
-    public static $TYPES = [
+    public static $types = [
         'success',
-        'danger',
+        'error',
         'warning',
-        'info'
+        'info',
+        'debug'
     ];
 
-    public static function init($saveState = true)
+    /**
+     * initialise notifications
+     *
+     * @param bool $saveState
+     * @param array $types
+     */
+    public static function init(bool $saveState = true, array $types = [])
     {
         $f3 = \Base::instance();
         $cli = (PHP_SAPI == 'cli');
@@ -29,7 +38,11 @@ class Notifications extends \Prefab
             $notifications = [];
         }
 
-        foreach (self::$TYPES as $type) {
+        if (!empty($types)) {
+            $this->$types = $types;
+        }
+
+        foreach (self::$types as $type) {
             if (!array_key_exists($type, $notifications)) {
                 $notifications[$type] = [];
             }
@@ -51,7 +64,7 @@ class Notifications extends \Prefab
         $f3 = \Base::instance();
         $notifications = [];
 
-        foreach (self::$TYPES as $type) {
+        foreach (self::$types as $type) {
             $notifications[$type] = [];
         }
 
@@ -59,7 +72,13 @@ class Notifications extends \Prefab
     }
 
 
-    public static function saveState($boolean = true)
+    /**
+     * Keep state between requests?
+     *
+     * @param bool $boolean
+     * @return boolean
+     */
+    public static function saveState(bool $boolean = true): bool
     {
         if (PHP_SAPI !== 'cli') {
             $f3 = \Base::instance();
@@ -72,32 +91,11 @@ class Notifications extends \Prefab
         }
     }
 
-
-    /**
-     * Log notifications
-     */
-    public static function log()
-    {
-        $f3 = \Base::instance();
-        $debug = $f3->get('DEBUG');
-        $logger = \Registry::get('logger');
-        $notifications = $f3->get('notifications');
-        if ($notifications && 3 <= $debug && $logger && method_exists($logger, 'write')) {
-            foreach ($notifications as $type => $messages) {
-                foreach ($messages as $m) {
-                    $msg = ' Notification: ' . trim($type . ' ' . $m);
-                    $logger->write($msg);
-                }
-            }
-        }
-    }
-
     public function __destruct()
     {
         if (PHP_SAPI !== 'cli') {
             $f3 = \Base::instance();
 
-            self::log();
             // save persistent notifications
             $notifications = empty($f3->get('notifications_save_state')) ? null : $f3->get('notifications');
             $f3->set('SESSION.notifications', $notifications);
@@ -106,12 +104,17 @@ class Notifications extends \Prefab
     }
 
 
-    // add a notification, default type is notification
-    public static function add($notification, $type = null)
+    /**
+     * add a notification, default type is notification
+     *
+     * @param string $notification
+     * @param string $type
+     */
+    public static function add(string $notification, string $type = null)
     {
         $f3 = \Base::instance();
         $notifications = $f3->get('notifications');
-        $type = (empty($type) || !in_array($type, self::$TYPES)) ? 'info' : $type;
+        $type = (empty($type) || !in_array($type, self::$types)) ? 'info' : $type;
 
         // don't repeat notifications!
         if (!in_array($notification, $notifications[$type]) && is_string($notification)) {
@@ -124,9 +127,9 @@ class Notifications extends \Prefab
     /**
      * add multiple notifications by type
      *
-     * @param type $notificationsList
+     * @param array $notificationsList
      */
-    public function addMultiple($notificationsList)
+    public function addMultiple(array $notificationsList)
     {
         $f3 = \Base::instance();
         $notifications = $f3->get('notifications');
@@ -141,38 +144,20 @@ class Notifications extends \Prefab
     }
 
 
-    // return notifications of given type or all TYPES, return false if none
-    public static function sum($type = null)
+    /**
+     * return notifications of given type or all types, return false if none, clearing stack
+     *
+     * @param string $type
+     * @param bool $clear
+     * @return boolean|array
+     */
+    public static function get(string $type = null, bool $clear = true)
     {
         $f3 = \Base::instance();
         $notifications = $f3->get('notifications');
 
         if (!empty($type)) {
-            if (in_array($type, self::$TYPES)) {
-                $i = count($notifications[$type]);
-                return $i;
-            } else {
-                return false;
-            }
-        }
-
-        $i = 0;
-        foreach (self::$TYPES as $type) {
-            $i += count($notifications[$type]);
-        }
-
-        return $i;
-    }
-
-
-    // return notifications of given type or all TYPES, return false if none, clearing stack
-    public static function get($type = null, $clear = true)
-    {
-        $f3 = \Base::instance();
-        $notifications = $f3->get('notifications');
-
-        if (!empty($type)) {
-            if (in_array($type, self::$TYPES)) {
+            if (in_array($type, self::$types)) {
 
                 $i = count($notifications[$type]);
                 if (0 < $i) {
@@ -188,7 +173,7 @@ class Notifications extends \Prefab
 
         // return false if there actually are no notifications in the session
         $i = 0;
-        foreach (self::$TYPES as $type) {
+        foreach (self::$types as $type) {
             $i += count($notifications[$type]);
         }
 
@@ -198,13 +183,12 @@ class Notifications extends \Prefab
 
         // order return by order of type array above
         // i.e. success, error, warning and then informational notifications last
-        foreach (self::$TYPES as $type) {
+        foreach (self::$types as $type) {
             $return[$type] = $notifications[$type];
         }
 
         // clear all notifications
         if (!empty($clear)) {
-            self::log();
             self::clear();
         }
 

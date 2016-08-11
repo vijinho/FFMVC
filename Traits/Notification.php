@@ -22,7 +22,7 @@ trait Notification
      * Notify user
      *
      * @param mixed $data multiple messages by 'type' => [messages] OR message string
-     * @param string $type type of messages (success, danger, warning, info) OR null if multiple $data
+     * @param string $type type of messages (success, error, warning, info) OR null if multiple $data
      * @return boolean success
      */
     public function notify($data, $type = null)

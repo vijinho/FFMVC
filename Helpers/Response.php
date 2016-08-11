@@ -22,7 +22,7 @@ class Response extends \Prefab
      *
      * @see http://www.w3.org/TR/2008/WD-access-control-20080912/
      */
-    public static function json($data, $params = [], $output = true)
+    public static function json(array $data, array $params = [], bool $output = true)
     {
         $f3 = \Base::instance();
 
@@ -60,7 +60,9 @@ class Response extends \Prefab
                 }
                 header($header.': '.$value);
             }
-            header_remove('Set-Cookie'); // prevent php session
+            if (!array_key_exists('cookie', $params)) {
+                header_remove('Set-Cookie'); // prevent php session
+            }
             // default status is 200 - OK
             $f3->status(array_key_exists('http_status', $params) ? $params['http_status'] : 200);
 

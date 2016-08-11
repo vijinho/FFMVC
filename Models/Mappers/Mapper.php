@@ -2,8 +2,7 @@
 
 namespace FFMVC\Models\Mappers;
 
-use FFMVC\Traits as Traits;
-use FFMVC\Helpers as Helpers;
+use FFMVC\{Traits, Helpers};
 
 /**
  * Base Database Mapper Class extends f3's DB\SQL\Mapper
@@ -14,6 +13,10 @@ use FFMVC\Helpers as Helpers;
  * @link https://fatfreeframework.com/sql-mapper
  * @link https://github.com/Wixel/GUMP
  */
+
+// abstract class Magic implements ArrayAccess
+// abstract class Cursor extends \Magic implements \IteratorAggregate
+// class Mapper extends \DB\Cursor
 abstract class Mapper extends \DB\SQL\Mapper
 {
     use Traits\Logger;
@@ -42,26 +45,6 @@ abstract class Mapper extends \DB\SQL\Mapper
      * @var table for the mapper
      */
     protected $table;
-
-    /**
-     * @var object logging class
-     */
-    protected $loggerObject;
-
-    /**
-     * Initial validation rules (automatically copied from $validationRules when instantiated)
-     *
-     * @var array
-     */
-    protected $validationRulesDefault = [];
-
-    /**
-     * Initial filter rules  (automatically copied from $filterRules when instantiated)
-     *
-     * @var array
-     */
-    protected $filterRulesDefault = [];
-
 
     /**
      * initialize with array of params, 'db' and 'logger' can be injected
@@ -93,34 +76,87 @@ abstract class Mapper extends \DB\SQL\Mapper
         $this->filterRulesDefault = $this->filterRules;
     }
 
+    /**
+     * Cast the mapper data to an array using only provided fields
+     *
+     * @param mixed string|array fields to return in response
+     * @param array optional data optional data to use instead of fields
+     * @return array $data
+     */
+    public function castFields($fields = null, array $data = []): array
+    {
+        if (!empty($fields)) {
+            if (is_string($fields)) {
+                $fields = preg_split("/[\s,]+/", strtolower($fields));
+            } else if (!is_array($fields)) {
+                $fields = [];
+            }
+        }
+
+        if (empty($data) || !is_array($data)) {
+            $data = $this->cast();
+        }
+
+        if (empty($fields)) {
+            $fields = array_keys($data);
+        }
+
+        // remove fields not in the list
+        foreach ($data as $k => $v) {
+            if (!in_array($k, $fields)) {
+                unset($data[$k]);
+            }
+        }
+
+        return $data;
+    }
 
     /**
      * Cast the mapper data to an array and modify (for external clients typically)
      * using the visible fields and names for export, converting dates to unixtime
+     * optionally pass in a comma (or space)-separated list of fields or an array of fields
      *
-     * @param boolean $unmodified should the data be mapper original or modified?
+     * @param mixed string|array fields to return in response
+     * @param array optional data optional data to use instead of fields
      * @return array $data
      */
-    public function &exportArray($unmodified = false)
+    public function exportArray($fields = null, array $data = []): array
     {
-        $data = $this->cast();
-        if (!empty($unmodified)) {
-            return $data;
+        if (!empty($fields)) {
+            if (is_string($fields)) {
+                $fields = preg_split("/[\s,]+/", strtolower($fields));
+            } else if (!is_array($fields)) {
+                $fields = [];
+            }
         }
+
+        if (empty($data) || !is_array($data)) {
+            $data = $this->cast();
+        }
+
         foreach ($data as $k => $v) {
             if (empty($this->fieldsVisible[$k])) {
                 unset($data[$k]);
                 continue;
             } elseif (true !== $this->fieldsVisible[$k]) {
                 unset($data[$k]);
-                $data[$this->fieldsVisible[$k]] = $v;
+                $k = $this->fieldsVisible[$k];
+                $data[$k] = $v;
             }
             // convert date to unix timestamp
             if ('updated' == $k || 'created' == $k || (
                 strlen($v) == 19 && preg_match("/^[\d]{4}-[\d]{2}-[\d]{2}[\s]+[\d]{2}:[\d]{2}:[\d]{2}/", $v, $m))) {
-                $data[$k] = strtotime($v);
+                $time = strtotime($v);
+                if ($time < 0) {
+                    $time = 0;
+                }
+                $data[$k] = $time;
+            }
+            if (!empty($fields) && $k !== 'id' && $k !== 'object' && !in_array($k, $fields)) {
+                unset($data[$k]);
             }
         }
+        $data['object'] = strtolower(substr(get_class($this), 21));
         return $data;
     }
 
@@ -128,13 +164,13 @@ abstract class Mapper extends \DB\SQL\Mapper
     /**
      * Convert the mapper object to format suitable for JSON
      *
-     * @param boolean $unmodified should the data be mapper original or modified?
      * @param boolean $public cast as public (visible) data or raw db data?
-     * @return json
+     * @param mixed optional string|array fields to include
+     * @return string json-encoded data
      */
-    public function &exportJson($unmodified = false)
+    public function exportJson(bool $unmodified = false, $fields = null): string
     {
-        return json_encode(empty($public) ? $this->cast() : $this->exportArray($unmodified), JSON_PRETTY_PRINT);
+        return json_encode(empty($unmodified) ? $this->castFields($fields) : $this->exportArray($fields), JSON_PRETTY_PRINT);
     }
 
 
@@ -142,15 +178,17 @@ abstract class Mapper extends \DB\SQL\Mapper
      * Set a field (default named uuid) to a UUID value if one is not present.
      *
      * @param string $field the name of the field to check and set
-     * @return string $uuid the new uuid generated
+     * @return null|string $uuid the new uuid generated
      */
-    public function setUUID($field = 'uuid')
+    public function setUUID(string $field = 'uuid')
     {
+        $db = \Registry::get('db');
         // a proper uuid is 36 characters
-        if (in_array($field, $this->fields()) && (null == $this->$field || strlen($this->$field !== 36))) {
+        if (in_array($field, $this->fields()) &&
+            (empty($this->$field) || strlen($this->$field) < 36)) {
             $tmp = clone $this;
             $uuid = Helpers\Str::uuid();
-            while ($tmp->load(["$field = ?", $uuid])) {
+            while ($tmp->load([$db->quotekey($field) . ' = ?', $uuid])) {
                 $uuid = Helpers\Str::uuid();
             }
             unset($tmp);
@@ -167,7 +205,7 @@ abstract class Mapper extends \DB\SQL\Mapper
      * @param string $id uuid key field
      * @return boolean true/false
      */
-    public function smartSave($id = 'uuid')
+    public function validateSave(string $id = 'uuid')
     {
         // set UUID vield value if not set
         $this->setUUID($id);
@@ -186,7 +224,7 @@ abstract class Mapper extends \DB\SQL\Mapper
      *
      * @param array $data
      * @param array $rules
-     * @return $data
+     * @return array $data
      */
     public function filter(array $data = [], array $rules = [])
     {
@@ -208,10 +246,10 @@ abstract class Mapper extends \DB\SQL\Mapper
      *
      * @param bool $run GUMP - call 'run' (return true/false) otherwise call 'validate' (return array)
      * @param array $data optional data array if different values to check outside of this mapper object fields
-     * @return mixed array of validated data if 'run' otherwise array of errors or boolean if passed 'validate'
+     * @return bool|array of validated data if 'run' otherwise array of errors or boolean if passed 'validate'
      * @link https://github.com/Wixel/GUMP
      */
-    public function validate($run = true, array $data = [])
+    public function validate(bool $run = true, array $data = [])
     {
         if (!is_array($data) || empty($data)) {
             $data = $this->cast();
@@ -245,6 +283,3 @@ abstract class Mapper extends \DB\SQL\Mapper
 
 
 }
-
-
-class MapperException extends \Exception {}

@@ -13,12 +13,15 @@ use FFMVC\Helpers as Helpers;
  */
 class Index extends Base
 {
-    // render a php template .phtml view from ui/
-    public function index($f3, $params)
+    /**
+     *
+     *
+     * @param \Base $f3
+     * @param array $params
+     * @return void
+     */
+    public function index($f3, array $params)
     {
-        $this->notify('Welcome!', 'success');
-        $this->log('poop');
-        
-        echo \View::instance()->render('www/index/index.phtml');
+        echo \View::instance()->render('index/index.phtml');
     }
 }

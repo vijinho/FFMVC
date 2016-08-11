@@ -23,7 +23,7 @@ trait UrlHelper
      * @param type $url
      * @param array $params
      */
-    public function url($url, array $params = [])
+    public function url(string $url, array $params = []): string
     {
         return $this->urlHelperObject->internal($url, $params);
     }
@@ -35,7 +35,7 @@ trait UrlHelper
      * @param type $url
      * @param array $params
      */
-    public function xurl($url, array $params = [], $https = true)
+    public function xurl(string $url, array $params = [], bool $https = true): string
     {
         return $this->urlHelperObject->external($url, $params, $https);
     }

@@ -1,4 +1,4 @@
-# FFMVC
+# FFMVC PHP7
 
 Files used by the https://github.com/vijinho/f3-boilerplate project.
 
