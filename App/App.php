@@ -6,7 +6,7 @@ namespace FFMVC\App;
  * Main App Class
  *
  * This should be included and run by every app upon initialisation and termination
- * It sets up the base environment for the app
+ * It sets up the base environment for the app - should not create objects
  *
  * @author Vijay Mahrra <vijay@yoyo.org>
  * @copyright (c) Copyright 2015 Vijay Mahrra
@@ -85,6 +85,16 @@ class App extends \Prefab
 
         // default cacheable data time in seconds from config
         $ttl = $f3->get('app.ttl');
+
+            // enable full logging if not production
+       $logfile = $f3->get('app.logfile');
+        if (!empty($logfile)) {
+            if ('production' !== $f3->get('app.env')) {
+                ini_set('log_errors', 'On');
+                ini_set('error_log', $logfile);
+                ini_set('error_reporting', -1);
+            }
+        }
 
         // parse params for http-style dsn
         // setup database connection params
