@@ -137,4 +137,27 @@ class Str extends \Prefab
 
         return $uuid;
     }
+
+    /**
+     * Deserialize a value as an object or array if serialized
+     *
+     * @param mixed $value
+     */
+    public static function deserialize($value)
+    {
+        // first try to unserialize php object
+        $v = @unserialize($value); // object if success
+
+            // next try to json_decode - results in array
+        if (empty($v) || !is_object($v)) {
+            $v = json_decode($value, true);
+        }
+
+        // update value to unserialized object/array if necessary
+        if (is_object($v) || is_array($v)) {
+            return $v;
+        }
+
+        return $value;
+    }
 }
