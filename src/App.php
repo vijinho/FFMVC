@@ -1,6 +1,6 @@
 <?php
 
-namespace FFMVC\App;
+namespace FFMVC;
 
 /**
  * Main App Class
