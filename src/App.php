@@ -127,12 +127,14 @@ class App extends \Prefab
         // set default error handler output for CLI mode
         $f3->set('ONERROR', function ($f3) {
             $e = $f3->get('ERROR');
+
                 // detailed error notifications because it's not public
-            $errorMessage = sprintf("Exception %d: %s\n%s\n\n%s\n",
-                $e['code'], $e['status'], $e['text'], $e['trace']
+            $errorMessage = sprintf("Trace: %s\n\nException %d: %s\n%s\n",
+                $e['trace'], $e['code'], $e['status'], $e['text']
             );
 
-            print_r($e);
+            echo $errorMessage;
+
             $logger = \Registry::get($logger);
             if (is_object($logger)) {
                 $logger->write($errorMessage);
