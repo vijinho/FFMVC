@@ -15,6 +15,7 @@ This small library of classes can be used to start your own project based on a c
 - `Notifications.php` - A general class to store/retrieve user notification messages in an array to the f3 hive.
 - `Response.php` - A class to return a JSON-encoded HTTP message.
 - `Str.php` - Some general string utility functions.
+- `Time.php` - Date/time utility methods
 - `Url.php` - General helper methods to create internal/external links.
 - `Validator.php` - An extension to [GUMP](https://github.com/Wixel/GUMP) using some f3 string methods.
 - `Mail.php` - A wrapper to return a pre-configured instance of [PHPMailer](https://github.com/PHPMailer/PHPMailer) based on f3 settings.
