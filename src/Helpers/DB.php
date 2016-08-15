@@ -58,6 +58,9 @@ class DB extends \Prefab
      */
     public static function createDbDsn(array $config): string
     {
+        if (array_key_exists('http_dsn', $config)) {
+            $config = array_merge($config, self::parseHttpDsn($config['http_dsn']));
+        }
         if (array_key_exists('dsn', $config)) {
             return $config['dsn'];
         } else {
