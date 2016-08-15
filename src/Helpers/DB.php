@@ -44,7 +44,7 @@ class DB extends \Prefab
 
 
     /**
-     * Return an f3 (pdo) dsn based on config params
+     * Return an f3 (pdo) dsn based on config params OR existing dsn param if set
      *
      * @param array $config e.g.
      * {
@@ -58,9 +58,16 @@ class DB extends \Prefab
      */
     public static function createDbDsn(array $config): string
     {
-        return sprintf('%s:host=%s;port=%d;dbname=%s',
-            $config['driver'], $config['host'], $config['port'], $config['name']
-        );
+        if (array_key_exists('http_dsn', $config)) {
+            $config = array_merge($config, self::parseHttpDsn($config['http_dsn']));
+        }
+        if (array_key_exists('dsn', $config)) {
+            return $config['dsn'];
+        } else {
+            return sprintf('%s:host=%s;port=%d;dbname=%s',
+                $config['driver'], $config['host'], $config['port'], $config['name']
+            );
+        }
     }
 
 

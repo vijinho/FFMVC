@@ -55,7 +55,6 @@ class App extends \Prefab
             $paths = $f3->get($key);
                 // remove any invalid dirs
             if (!empty($paths)) {
-
                 $dirs = $f3->split($paths);
                 foreach ($dirs as $k => $dir) {
                     if (empty($dir)) {
@@ -87,13 +86,17 @@ class App extends \Prefab
         $ttl = $f3->get('app.ttl');
 
             // enable full logging if not production
-       $logfile = $f3->get('app.logfile');
-        if (!empty($logfile)) {
-            if ('production' !== $f3->get('app.env')) {
-                ini_set('log_errors', 'On');
-                ini_set('error_log', $logfile);
-                ini_set('error_reporting', -1);
-            }
+        $logfile = $f3->get('app.logfile');
+        if (empty($logfile)) {
+            $f3->set('app.logfile', '/dev/null');
+        } elseif ('production' !== $f3->get('app.env')) {
+            ini_set('log_errors', 'On');
+            $logfile = $f3->get('LOGS') . $logfile;
+            $f3->set('logfile', $logfile);
+            ini_set('error_log', $logfile);
+            ini_set('error_reporting', -1);
+            ini_set('ignore_repeated_errors', 'On');
+            ini_set('ignore_repeated_source', 'On');
         }
 
         // parse params for http-style dsn
@@ -101,16 +104,11 @@ class App extends \Prefab
         // @see http://fatfreeframework.com/databases
         $httpDSN = $f3->get('db.http_dsn');
         if (!empty($httpDSN)) {
+            $dbParams = $f3->get('db');
             $params = \FFMVC\Helpers\DB::instance()->parseHttpDsn($httpDSN);
-            $f3->mset([
-                'db.driver' => $params['driver'],
-                'db.host'   => $params['host'],
-                'db.port'   => $params['port'],
-                'db.name'   => $params['name'],
-                'db.user'   => $params['user'],
-                'db.pass'   => $params['pass'],
-            ]);
-            $f3->set('db.dsn', \FFMVC\Helpers\DB::instance()->createDbDsn($params), $ttl);
+            $params['dsn'] = \FFMVC\Helpers\DB::instance()->createDbDsn($params);
+            $dbParams = array_merge($dbParams, $params);
+            $f3->set('db', $dbParams);
         }
 
         // setup outgoing email server for php mail command
@@ -123,6 +121,11 @@ class App extends \Prefab
         if (PHP_SAPI !== 'cli') {
             return;
         }
+
+        // log errors if run on command line
+        ini_set('display_errors', 'On');
+        ini_set('error_log', 'On');
+        ini_set('html_errors', 'Off');
 
         // set default error handler output for CLI mode
         $f3->set('ONERROR', function ($f3) {
@@ -145,9 +148,7 @@ class App extends \Prefab
         $uri = $f3->get('SERVER.REQUEST_URI');
         $querystring = preg_split("/&/", \UTF::instance()->substr($uri, 1 + \UTF::instance()->strpos($uri . '&', '?')));
         if (!empty($querystring) && count($querystring)) {
-
             foreach ($querystring as $pair) {
-
                 if (0 == count($pair)) {
                     continue;
                 }
