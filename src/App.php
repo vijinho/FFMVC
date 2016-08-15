@@ -95,6 +95,8 @@ class App extends \Prefab
             $f3->set('logfile', $logfile);
             ini_set('error_log', $logfile);
             ini_set('error_reporting', -1);
+            ini_set('ignore_repeated_errors', 'On');
+            ini_set('ignore_repeated_source', 'On');
         }
 
         // parse params for http-style dsn
@@ -119,6 +121,11 @@ class App extends \Prefab
         if (PHP_SAPI !== 'cli') {
             return;
         }
+
+        // log errors if run on command line
+        ini_set('display_errors', 'On');
+        ini_set('error_log', 'On');
+        ini_set('html_errors', 'Off');
 
         // set default error handler output for CLI mode
         $f3->set('ONERROR', function ($f3) {
