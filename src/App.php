@@ -91,6 +91,8 @@ class App extends \Prefab
             $f3->set('app.logfile', '/dev/null');
         } elseif ('production' !== $f3->get('app.env')) {
             ini_set('log_errors', 'On');
+            $logfile = $f3->get('LOGS') . $logfile;
+            $f3->set('logfile', $logfile);
             ini_set('error_log', $logfile);
             ini_set('error_reporting', -1);
         }
