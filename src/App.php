@@ -137,7 +137,7 @@ class App extends \Prefab
 
             $logger = \Registry::get($logger);
             if (is_object($logger)) {
-                $logger->write($errorMessage);
+                $logger->write($errorMessage, $f3->get('app.logdate'));
             }
         });
 
@@ -185,7 +185,7 @@ class App extends \Prefab
             if (3 <= $debug &&
                 method_exists($logger, 'write') &&
                 method_exists($db, 'log')) {
-                $logger->write($db->log());
+                $logger->write($db->log(), $f3->get('app.logdate'));
             }
 
             $execution_time = round(microtime(true) - $f3->get('TIME'), 3);
@@ -193,7 +193,7 @@ class App extends \Prefab
 
             $logger->write('Script '.$params[0].' executed in '.$execution_time.' seconds using '.
                 round(memory_get_usage() / 1024 / 1024, 2).'/'.
-                round(memory_get_peak_usage() / 1024 / 1024, 2).' MB memory/peak');
+                round(memory_get_peak_usage() / 1024 / 1024, 2).' MB memory/peak', $f3->get('app.logdate'));
         }
 
         // http://php.net/manual/en/function.ob-end-flush.php
