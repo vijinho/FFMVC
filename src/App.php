@@ -196,8 +196,8 @@ class App extends \Prefab
 
             $execution_time = round(microtime(true) - $f3->get('TIME'), 3);
             $params = $f3->get('PARAMS');
-
-            $logger->write('Script '.$params[0].' executed in '.$execution_time.' seconds using '.
+            $params = is_array($params) && !empty($params[0]) ? $params[0] : '';
+            $logger->write('Script '.$params.' executed in '.$execution_time.' seconds using '.
                 round(memory_get_usage() / 1024 / 1024, 2).'/'.
                 round(memory_get_peak_usage() / 1024 / 1024, 2).' MB memory/peak', $f3->get('app.logdate'));
         }
