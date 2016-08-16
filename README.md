@@ -18,7 +18,7 @@ This small library of classes can be used to start your own project based on a c
 - `Time.php` - Date/time utility methods
 - `Url.php` - General helper methods to create internal/external links.
 - `Validator.php` - An extension to [GUMP](https://github.com/Wixel/GUMP) using some f3 string methods.
-- `Mail.php` - A wrapper to return a pre-configured instance of [PHPMailer](https://github.com/PHPMailer/PHPMailer) based on f3 settings.
+- `Mail.php` - A wrapper to return a pre-configured instance of [PHPMailer](https://github.com/PHPMailer/PHPMailer) based on f3 settings or pre-configured f3 built-in SMTP object 
 
 Vijay Mahrra
 http://about.me/vijay.mahrra

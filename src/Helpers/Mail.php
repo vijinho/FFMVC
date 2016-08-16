@@ -5,7 +5,7 @@ namespace FFMVC\Helpers;
 /**
  * Mail Helper Class.
  *
- * Add to composer.json:
+ * For getPhpMailer add to composer.json:
  *     "phpmailer/phpmailer": "dev-master"
  *
  * @author Vijay Mahrra <vijay@yoyo.org>
@@ -21,7 +21,7 @@ class Mail extends \Prefab
      * @return \PHPMailer
      * @url https://github.com/PHPMailer/PHPMailer
      */
-    public static function getPhpMailer(array $data = []): \PHPMailer
+    public static function &getPhpMailer(array $data = []): \PHPMailer
     {
         $f3 = \Base::instance();
 
@@ -55,4 +55,34 @@ class Mail extends \Prefab
 
         return $mail;
     }
+
+
+    /**
+     * Return an instance of f3 \SMTP populated with application settings
+     *
+     * @param array $data
+     * @return \SMTP
+     */
+    public static function &getMailer(array $data = []): \SMTP
+    {
+        $f3 = \Base::instance();
+
+        $smtp = new \SMTP(
+            $f3->get('email.host'),
+            $f3->get('email.port'),
+            $f3->get('email.scheme'),
+            $f3->get('email.user'),
+            $f3->get('email.pass')
+        );
+
+        $smtp->set('From', $f3->get('email.from'));
+
+        // finally set other values like overrides
+        foreach ($data as $k => $v) {
+            $smtp->set($k, $v);
+        }
+
+        return $smtp;
+    }
+
 }
