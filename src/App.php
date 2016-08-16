@@ -138,9 +138,11 @@ class App extends \Prefab
 
             echo $errorMessage;
 
-            $logger = \Registry::get($logger);
-            if (is_object($logger)) {
-                $logger->write($errorMessage, $f3->get('app.logdate'));
+            if (\Registry::exists('logger')) {
+                $logger = \Registry::get('logger');
+                if (is_object($logger)) {
+                    $logger->write($errorMessage, $f3->get('app.logdate'));
+                }
             }
         });
 
@@ -176,9 +178,12 @@ class App extends \Prefab
         // log script execution time if debugging
         $f3 = \Base::instance();
         $debug = $f3->get('DEBUG');
-        $logger = \Registry::get('logger');
 
-        if ($logger && $debug || 'production' !== $f3->get('app.env')) {
+        if (\Registry::exists('logger')) {
+            $logger = \Registry::get('logger');
+        }
+
+        if (!empty($logger) && is_object($logger) && $debug || 'production' !== $f3->get('app.env')) {
 
             // log database transactions if level 3
             $db = \Registry::get('db');
