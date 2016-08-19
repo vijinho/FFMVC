@@ -4,7 +4,7 @@ namespace FFMVC\Helpers;
 
 /**
  * Validation Helper Class
- * 
+ *
  * Add to composer.json:
  *    "wixel/gump": "dev-master"
  *
@@ -25,8 +25,8 @@ class Validator extends \GUMP
      * @return Validator
      */
 
-    public static function instance(){
-
+    public static function instance()
+    {
         if (self::$instance === null) {
             self::$instance = new self();
         }
@@ -176,4 +176,20 @@ class Validator extends \GUMP
         return \UTF::instance()->emojify($value);
     }
 
+    /**
+     * Convert input to a slug
+     *
+     * The callback function receives two arguments:
+     * The value to filter, and any parameters used in the filter rule. It should returned the filtered value.
+     *
+     * @param $value
+     * @param array $param
+     *
+     * @return type
+     * @link https://fatfreeframework.com/utf-unicode-string-manager#emojify
+     */
+    public function filter_slug($value, $param = null)
+    {
+        return \Web::instance()->slug($value);
+    }
 }
