@@ -1,9 +1,9 @@
 {
-    "name": "FFMVC",
+    "name": "vijinho/ffmvc",
     "description": "Fat-Free Framework f3-boilerplate FFMVC Shared Libraries",
     "keywords": ["php", "api", "f3"],
     "homepage": "https://github.com/vijinho/FFMVC",
-    "license": "GPL-3.0+",
+    "license": "GPL-3.0",
     "type": "application",
     "authors": [
         {
@@ -17,12 +17,9 @@
         "vendor-dir": "lib"
     },
     "autoload": {
-        "classmap": ["src/Helpers", "src/App", "src/CLI", "src/Controllers"]
+        "classmap": ["src/Helpers", "src"]
     },
     "require": {
-        "php": ">=5.6.0"
-    },
-    "suggest": {
-        "php": ">=7.0"
-    }
+		"php": ">=7.0"
+	}
 }
