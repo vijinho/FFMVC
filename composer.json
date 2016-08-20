@@ -20,6 +20,6 @@
         "classmap": ["src/Helpers", "src"]
     },
     "require": {
-		"php": ">=7.0"
+		"php": ">=5.6"
 	}
 }
