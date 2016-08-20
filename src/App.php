@@ -83,12 +83,12 @@ class App extends \Prefab
         $debug = $f3->get('debug');
 
         // default cacheable data time in seconds from config
-        $ttl = $f3->get('app.ttl');
+        $ttl = $f3->get('ttl.default');
 
             // enable full logging if not production
-        $logfile = $f3->get('app.logfile');
+        $logfile = $f3->get('log.file');
         if (empty($logfile)) {
-            $f3->set('app.logfile', '/dev/null');
+            $f3->set('log.file', '/dev/null');
         } elseif ('production' !== $f3->get('app.env')) {
             ini_set('log_errors', 'On');
             $logfile = $f3->get('LOGS') . $logfile;
@@ -102,7 +102,7 @@ class App extends \Prefab
         // parse params for http-style dsn
         // setup database connection params
         // @see http://fatfreeframework.com/databases
-        $httpDSN = $f3->get('db.http_dsn');
+        $httpDSN = $f3->get('db.dsn_http');
         if (!empty($httpDSN)) {
             $dbParams = $f3->get('db');
             $params = \FFMVC\Helpers\DB::instance()->parseHttpDsn($httpDSN);
@@ -141,7 +141,7 @@ class App extends \Prefab
             if (\Registry::exists('logger')) {
                 $logger = \Registry::get('logger');
                 if (is_object($logger)) {
-                    $logger->write($errorMessage, $f3->get('app.logdate'));
+                    $logger->write($errorMessage, $f3->get('log.date'));
                 }
             }
         });
@@ -191,7 +191,7 @@ class App extends \Prefab
             if (3 <= $debug &&
                 method_exists($logger, 'write') &&
                 method_exists($db, 'log')) {
-                $logger->write($db->log(), $f3->get('app.logdate'));
+                $logger->write($db->log(), $f3->get('log.date'));
             }
 
             $execution_time = round(microtime(true) - $f3->get('TIME'), 3);
@@ -199,7 +199,7 @@ class App extends \Prefab
             $params = is_array($params) && !empty($params[0]) ? $params[0] : '';
             $logger->write('Script '.$params.' executed in '.$execution_time.' seconds using '.
                 round(memory_get_usage() / 1024 / 1024, 2).'/'.
-                round(memory_get_peak_usage() / 1024 / 1024, 2).' MB memory/peak', $f3->get('app.logdate'));
+                round(memory_get_peak_usage() / 1024 / 1024, 2).' MB memory/peak', $f3->get('log.date'));
         }
 
         // http://php.net/manual/en/function.ob-end-flush.php

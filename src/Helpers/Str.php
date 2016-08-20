@@ -43,7 +43,7 @@ class Str extends \Prefab
      *
      * @param string $string to salt
      * @param string $pepper string pepper to add to the salted string for extra security
-     * @param string $salt string if not default app.salt config item
+     * @param string $salt string if not default security.salt config item
      * @return string $encoded
      * @link http://php.net/manual/en/function.hash-hmac.php
      * @link http://fatfreeframework.com/base#hash
@@ -51,8 +51,8 @@ class Str extends \Prefab
     public static function salted(string $string, string $pepper = ''): string
     {
         $f3 = \Base::instance();
-        $salt = $f3->get('app.salt');
-        $hash = $f3->get('app.hash');
+        $salt = $f3->get('security.salt');
+        $hash = $f3->get('security.hash');
 
         return base64_encode(hash_hmac($hash, $string, $salt . $pepper, true));
     }

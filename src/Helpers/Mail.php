@@ -33,7 +33,7 @@ class Mail extends \Prefab
         $mail->Password = $f3->get('email.pass');
         $mail->Port = $f3->get('email.port');
         $mail->Host = $f3->get('email.host');
-        $mail->Timeout = $f3->get('email.timeout');
+        $mail->Timeout = $f3->get('ttl.email');
 
         if ($f3->get('email.sendmail')) {
             $mail->Sendmail = 'smtp://' .  $f3->get('email.host') . ':' . $f3->get('email.port');
