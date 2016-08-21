@@ -105,8 +105,8 @@ class App extends \Prefab
         $httpDSN = $f3->get('db.dsn_http');
         if (!empty($httpDSN)) {
             $dbParams = $f3->get('db');
-            $params = \FFMVC\Helpers\DB::instance()->parseHttpDsn($httpDSN);
-            $params['dsn'] = \FFMVC\Helpers\DB::instance()->createDbDsn($params);
+            $params = \FFMVC\Helpers\DB::parseHttpDsn($httpDSN);
+            $params['dsn'] = \FFMVC\Helpers\DB::createDbDsn($params);
             $dbParams = array_merge($dbParams, $params);
             $f3->set('db', $dbParams);
         }
