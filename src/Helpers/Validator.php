@@ -37,24 +37,24 @@ class Validator extends \GUMP
      * Perform data filtering against the provided ruleset.
      *
      * @param mixed $input
-     * @param array optinal $ruleset ot use class rulset
+     * @param array optinal $ruleset ot use class ruleset
      * @return mixed
      */
     public function filter(array $input, array $ruleset = [])
     {
-        return empty($ruleset) ? parent::filter($input, $this->filter_rules) : parent::filter($input, $rulset);
+        return empty($ruleset) ? parent::filter($input, $this->filter_rules) : parent::filter($input, $ruleset);
     }
 
     /**
      * Perform data validation against the provided ruleset.
      *
      * @param mixed $input
-     * @param array optinal $ruleset ot use class rulset
+     * @param array optinal $ruleset ot use class ruleset
      * @return mixed
      */
     public function validate(array $input, array $ruleset = [])
     {
-        return empty($ruleset) ? parent::validate($input, $this->validation_rules) : parent::validate($input, $rulset);
+        return empty($ruleset) ? parent::validate($input, $this->validation_rules) : parent::validate($input, $ruleset);
     }
 
     /**
