@@ -17,7 +17,6 @@ class App extends \Prefab
     /**
      * setup the base application environment.
      *
-     * @param \Base $f3
      * @return void
      */
     public static function start()
@@ -48,7 +47,6 @@ class App extends \Prefab
             }
         }
 
-
         // these take multiple paths
         $language = $f3->get('LANGUAGE');
         foreach (['LOCALES', 'UI'] as $key) {
@@ -64,8 +62,8 @@ class App extends \Prefab
                     // switch for different language templates
                     $langDir = '';
                     if ('UI' == $key) {
-                        $langDir = 'templates/' . $language . '/' .  $dir;
-                        $dir = 'templates/en/' .  $dir;
+                        $langDir = 'templates/' . $language . '/' . $dir;
+                        $dir     = 'templates/en/' . $dir;
                         if (!file_exists($langDir)) {
                             unset($langDir);
                         }
@@ -80,12 +78,8 @@ class App extends \Prefab
             }
         }
 
-        $debug = $f3->get('debug');
-
-        // default cacheable data time in seconds from config
-        $ttl = $f3->get('ttl.default');
-
             // enable full logging if not production
+        $logger  = null;
         $logfile = $f3->get('log.file');
         if (empty($logfile)) {
             $f3->set('log.file', '/dev/null');
@@ -104,10 +98,10 @@ class App extends \Prefab
         // @see http://fatfreeframework.com/databases
         $httpDSN = $f3->get('db.dsn_http');
         if (!empty($httpDSN)) {
-            $dbParams = $f3->get('db');
-            $params = \FFMVC\Helpers\DB::parseHttpDsn($httpDSN);
-            $params['dsn'] = \FFMVC\Helpers\DB::createDbDsn($params);
-            $dbParams = array_merge($dbParams, $params);
+            $dbParams      = $f3->get('db');
+            $params        = \FFMVC\Helpers\DB::instance()->parseHttpDsn($httpDSN);
+            $params['dsn'] = \FFMVC\Helpers\DB::instance()->createDbDsn($params);
+            $dbParams      = array_merge($dbParams, $params);
             $f3->set('db', $dbParams);
         }
 
@@ -147,24 +141,24 @@ class App extends \Prefab
         });
 
         // fix for f3 not populating $_GET when run on the command line
-        $uri = $f3->get('SERVER.REQUEST_URI');
-        $querystring = preg_split("/&/", \UTF::instance()->substr($uri, 1 + \UTF::instance()->strpos($uri . '&', '?')));
+        $uri         = $f3->get('SERVER.REQUEST_URI');
+        $querystring = preg_split('/&/', \UTF::instance()->substr($uri, 1 + \UTF::instance()->strpos($uri . '&', '?')));
         if (!empty($querystring) && count($querystring)) {
             foreach ($querystring as $pair) {
                 if (0 == count($pair)) {
                     continue;
                 }
-                $val = preg_split("/=/", $pair);
+                $val = preg_split('/=/', $pair);
 
                 if (!empty($val) && count($val) == 2) {
                     $k = $val[0];
                     $v = $val[1];
                     if (!empty($k) && !empty($v)) {
-                        $_GET[$k] = $v;
+                        $get[$k] = $v;
                     }
                 }
             }
-            $f3->set('GET', $_GET);
+            $f3->set('GET', $get);
         }
     }
 
@@ -176,7 +170,7 @@ class App extends \Prefab
     public static function finish()
     {
         // log script execution time if debugging
-        $f3 = \Base::instance();
+        $f3    = \Base::instance();
         $debug = $f3->get('DEBUG');
 
         if (\Registry::exists('logger')) {
@@ -195,11 +189,11 @@ class App extends \Prefab
             }
 
             $execution_time = round(microtime(true) - $f3->get('TIME'), 3);
-            $params = $f3->get('PARAMS');
-            $params = is_array($params) && !empty($params[0]) ? $params[0] : '';
-            $logger->write('Script '.$params.' executed in '.$execution_time.' seconds using '.
-                round(memory_get_usage() / 1024 / 1024, 2).'/'.
-                round(memory_get_peak_usage() / 1024 / 1024, 2).' MB memory/peak', $f3->get('log.date'));
+            $params         = $f3->get('PARAMS');
+            $params         = is_array($params) && !empty($params[0]) ? $params[0] : '';
+            $logger->write('Script ' . $params . ' executed in ' . $execution_time . ' seconds using ' .
+                round(memory_get_usage() / 1024 / 1024, 2) . '/' .
+                round(memory_get_peak_usage() / 1024 / 1024, 2) . ' MB memory/peak', $f3->get('log.date'));
         }
 
         // http://php.net/manual/en/function.ob-end-flush.php

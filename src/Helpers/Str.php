@@ -43,7 +43,6 @@ class Str extends \Prefab
      *
      * @param string $string to salt
      * @param string $pepper string pepper to add to the salted string for extra security
-     * @param string $salt string if not default security.salt config item
      * @return string $encoded
      * @link http://php.net/manual/en/function.hash-hmac.php
      * @link http://fatfreeframework.com/base#hash

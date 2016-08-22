@@ -39,10 +39,10 @@ class Notifications extends \Prefab
         }
 
         if (!empty($types)) {
-            $this->$types = $types;
+            static::$types = $types;
         }
 
-        foreach (self::$types as $type) {
+        foreach (static::$types as $type) {
             if (!array_key_exists($type, $notifications)) {
                 $notifications[$type] = [];
             }
@@ -64,7 +64,7 @@ class Notifications extends \Prefab
         $f3 = \Base::instance();
         $notifications = [];
 
-        foreach (self::$types as $type) {
+        foreach (static::$types as $type) {
             $notifications[$type] = [];
         }
 
@@ -114,7 +114,7 @@ class Notifications extends \Prefab
     {
         $f3 = \Base::instance();
         $notifications = $f3->get('notifications');
-        $type = (empty($type) || !in_array($type, self::$types)) ? 'info' : $type;
+        $type = (empty($type) || !in_array($type, static::$types)) ? 'info' : $type;
 
         // don't repeat notifications!
         if (!in_array($notification, $notifications[$type]) && is_string($notification)) {
@@ -157,7 +157,7 @@ class Notifications extends \Prefab
         $notifications = $f3->get('notifications');
 
         if (!empty($type)) {
-            if (in_array($type, self::$types)) {
+            if (in_array($type, static::$types)) {
 
                 $i = count($notifications[$type]);
                 if (0 < $i) {
@@ -173,7 +173,7 @@ class Notifications extends \Prefab
 
         // return false if there actually are no notifications in the session
         $i = 0;
-        foreach (self::$types as $type) {
+        foreach (static::$types as $type) {
             $i += count($notifications[$type]);
         }
 
@@ -183,13 +183,14 @@ class Notifications extends \Prefab
 
         // order return by order of type array above
         // i.e. success, error, warning and then informational notifications last
-        foreach (self::$types as $type) {
+        $return = [];
+        foreach (static::$types as $type) {
             $return[$type] = $notifications[$type];
         }
 
         // clear all notifications
         if (!empty($clear)) {
-            self::clear();
+            static::clear();
         }
 
         return $return;

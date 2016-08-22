@@ -24,7 +24,6 @@ class Validator extends \GUMP
      *
      * @return Validator
      */
-
     public static function instance()
     {
         if (self::$instance === null) {
@@ -43,7 +42,7 @@ class Validator extends \GUMP
      */
     public function filter(array $input, array $ruleset = [])
     {
-        return empty($rulseset) ? parent::filter($input, $this->filter_rules) : parent::filter($input, $rulset);
+        return empty($ruleset) ? parent::filter($input, $this->filter_rules) : parent::filter($input, $rulset);
     }
 
     /**
@@ -55,7 +54,7 @@ class Validator extends \GUMP
      */
     public function validate(array $input, array $ruleset = [])
     {
-        return empty($rulseset) ? parent::validate($input, $this->validation_rules) : parent::validate($input, $rulset);
+        return empty($ruleset) ? parent::validate($input, $this->validation_rules) : parent::validate($input, $rulset);
     }
 
     /**
@@ -73,7 +72,6 @@ class Validator extends \GUMP
     {
         return strtolower($value);
     }
-
 
     /**
      *  A custom filter named "upper".
