@@ -1,6 +1,8 @@
 # FFMVC PHP7
 
-![Travis CI](https://travis-ci.org/vijinho/FFMVC.svg?branch=dev-master)
+[![Travis CI](https://travis-ci.org/vijinho/FFMVC.svg?branch=dev-master)](https://travis-ci.org/vijinho/FFMVC)
+[![Code Coverage](https://scrutinizer-ci.com/g/vijinho/FFMVC/badges/coverage.png?b=dev-master)](https://scrutinizer-ci.com/g/vijinho/FFMVC/?branch=dev-master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/vijinho/FFMVC/badges/quality-score.png?b=dev-master)](https://scrutinizer-ci.com/g/vijinho/FFMVC/?branch=dev-master)
 
 Files used by the https://github.com/vijinho/f3-boilerplate project.
 
