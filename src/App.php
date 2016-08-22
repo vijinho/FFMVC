@@ -79,7 +79,6 @@ class App extends \Prefab
         }
 
             // enable full logging if not production
-        $logger  = null;
         $logfile = $f3->get('log.file');
         if (empty($logfile)) {
             $f3->set('log.file', '/dev/null');
@@ -143,6 +142,7 @@ class App extends \Prefab
         // fix for f3 not populating $_GET when run on the command line
         $uri         = $f3->get('SERVER.REQUEST_URI');
         $querystring = preg_split('/&/', \UTF::instance()->substr($uri, 1 + \UTF::instance()->strpos($uri . '&', '?')));
+        $get = [];
         if (!empty($querystring) && count($querystring)) {
             foreach ($querystring as $pair) {
                 if (0 == count($pair)) {
