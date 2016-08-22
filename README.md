@@ -1,5 +1,7 @@
 # FFMVC PHP7
 
+![Travis CI](https://travis-ci.org/vijinho/FFMVC.svg?branch=dev-master)
+
 Files used by the https://github.com/vijinho/f3-boilerplate project.
 
 This small library of classes can be used to start your own project based on a clone of the code in f3-boilerplate.
