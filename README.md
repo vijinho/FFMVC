@@ -1,6 +1,7 @@
 # FFMVC PHP7
 
 [![Travis CI](https://travis-ci.org/vijinho/FFMVC.svg?branch=dev-master)](https://travis-ci.org/vijinho/FFMVC)
+[![Build Status](https://scrutinizer-ci.com/g/vijinho/FFMVC/badges/build.png?b=dev-master)](https://scrutinizer-ci.com/g/vijinho/FFMVC/build-status/dev-master)
 [![Code Coverage](https://scrutinizer-ci.com/g/vijinho/FFMVC/badges/coverage.png?b=dev-master)](https://scrutinizer-ci.com/g/vijinho/FFMVC/?branch=dev-master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/vijinho/FFMVC/badges/quality-score.png?b=dev-master)](https://scrutinizer-ci.com/g/vijinho/FFMVC/?branch=dev-master)
 
