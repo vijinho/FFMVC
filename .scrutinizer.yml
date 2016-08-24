@@ -32,7 +32,7 @@ checks:
 tools:
 
     external_code_coverage:
-        enabled: true
+        enabled: false
         timeout: 1800
         runs: 4
         filter:

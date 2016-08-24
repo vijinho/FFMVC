@@ -48,7 +48,7 @@ class Validator extends \GUMP
     /**
      * Perform data validation against the provided ruleset.
      *
-     * @param mixed $input
+     * @param array $input
      * @param array optinal $ruleset ot use class ruleset
      * @return mixed
      */
