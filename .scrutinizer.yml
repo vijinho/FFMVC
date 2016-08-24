@@ -2,6 +2,14 @@ build:
     environment:
         php: '7.0.0'
 
+#    tests:
+#        override:
+#            -
+#                command: 'phpunit --coverage-text --coverage-clover=coverage.clover tests/Enums/RunTest.php'
+#                coverage:
+#                    file: 'coverage.clover'
+#                    format: 'php-clover'
+
 before_commands:
     - "composer install --prefer-source"
 
@@ -15,7 +23,6 @@ filter:
 checks:
     php:
         code_rating: true
-        duplication: true
         remove_extra_empty_lines: true
         remove_php_closing_tag: true
         remove_trailing_whitespace: true
@@ -30,7 +37,6 @@ checks:
         fix_identation_4spaces: true
         fix_doc_comments: true
 tools:
-
     external_code_coverage:
         enabled: false
         timeout: 1800
