@@ -142,7 +142,7 @@ class App extends \Prefab
         // fix for f3 not populating $_GET when run on the command line
         $uri         = $f3->get('SERVER.REQUEST_URI');
         $querystring = preg_split('/&/', \UTF::instance()->substr($uri, 1 + \UTF::instance()->strpos($uri . '&', '?')));
-        $get = [];
+        $get         = [];
         if (!empty($querystring) && count($querystring)) {
             foreach ($querystring as $pair) {
                 if (0 == count($pair)) {
@@ -175,6 +175,8 @@ class App extends \Prefab
 
         if (\Registry::exists('logger')) {
             $logger = \Registry::get('logger');
+        } else {
+            $logger = null;
         }
 
         if (!empty($logger) && is_object($logger) && $debug || 'production' !== $f3->get('app.env')) {

@@ -23,8 +23,6 @@ class Url extends \Prefab
      */
     public static function external(string $url, $params = null, bool $https = true): string
     {
-        $f3 = \Base::instance();
-
         if (!empty($params)) {
 
             if (is_array($params)) {
@@ -53,7 +51,7 @@ class Url extends \Prefab
      * converting 2nd argument $params to querystring if array
      *
      * @param string $url name of the url alias if beginning with @ or relative
-     * 
+     *
      * @param mixed $params url params as string or array
      * @param boolean $full default true
      * @return string

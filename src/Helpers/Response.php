@@ -43,41 +43,33 @@ class Response extends \Prefab
         $headers['Access-Control-Allow-Credentials'] = array_key_exists('acl_credentials', $params) ? $params['credentials'] : 'false';
 
         $body = json_encode($data, JSON_PRETTY_PRINT);
-        if (!empty($output)) {
-            $headers['Content-Length'] = \UTF::instance()->strlen($body);
+        $headers['ETag'] = array_key_exists('etag', $params) ? $params['etag'] : md5($body);
+        $headers['Content-Length'] = \UTF::instance()->strlen($body);
+
+        // if returning output data or sending a HEAD request...
+        if (empty($output)) {
+            if ('HEAD' == $f3->get('VERB')) {
+                $body = null;
+            }
+            return ['headers' => $headers, 'body' => $body];
         }
 
-        $headers['ETag'] = array_key_exists('etag', $params) ? $params['etag'] : md5($body);
+        // do not send session cookie
+        if (!array_key_exists('cookie', $params)) {
+            header_remove('Set-Cookie'); // prevent php session
+        }
 
-        if (empty($output)) {
-            return ['headers' => $headers, 'body' => $body];
-        } else {
+        // default status is 200 - OK
+        $f3->status(array_key_exists('http_status', $params) ? $params['http_status'] : 200);
 
-                // send the headers + data
-            foreach ($headers as $header => $value) {
-                if (is_string($value) && empty($value)) {
-                    continue;
-                }
-                header($header.': '.$value);
-            }
-            if (!array_key_exists('cookie', $params)) {
-                header_remove('Set-Cookie'); // prevent php session
-            }
-            // default status is 200 - OK
-            $f3->status(array_key_exists('http_status', $params) ? $params['http_status'] : 200);
+        // send the headers + data
+        foreach ($headers as $header => $value) {
+            header($header.': '.$value);
+        }
 
-            $method = $f3->get('VERB');
-
-            switch ($method) {
-                case 'HEAD':
-                    break;
-                default:
-                case 'GET':
-                case 'PUT':
-                case 'POST':
-                case 'DELETE':
-                    echo $body;
-            }
+        // HEAD request should be identical headers to GET request but no body
+        if ('HEAD' !== $f3->get('VERB')) {
+            echo $body;
         }
     }
 }
