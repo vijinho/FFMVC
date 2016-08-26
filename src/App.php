@@ -78,15 +78,14 @@ class App extends \Prefab
         }
 
             // enable full logging if not production
-        $ini     = [];
-        $logfile = $f3->get('log.file');
-        if (empty($logfile)) {
+        $ini             = [];
+        $hive['log']     = $f3->get('log');
+        if (empty($hive['log']['file'])) {
             $hive['log']['file'] = '/dev/null';
         } elseif ('production' !== $f3->get('app.env')) {
-            $hive['log']['file'] = $logfile;
             $ini                 = array_merge($ini, [
                 'log_errors'             => 'On',
-                'error_log'              => $logfile,
+                'error_log'              => $hive['log']['file'],
                 'error_reporting'        => -1,
                 'ignore_repeated_errors' => 'On',
                 'ignore_repeated_source' => 'On',
@@ -96,10 +95,10 @@ class App extends \Prefab
         // parse params for http-style dsn
         // setup database connection params
         // @see http://fatfreeframework.com/databases
-        $httpDSN = $f3->get('db.dsn_http');
-        if (!empty($httpDSN)) {
-            $dbParams      = $f3->get('db');
-            $params        = \FFMVC\Helpers\DB::instance()->parseHttpDsn($httpDSN);
+        $db      = $f3->get('db');
+        if (!empty($db['dsn_http'])) {
+            $dbParams      = $db;
+            $params        = \FFMVC\Helpers\DB::instance()->parseHttpDsn($db['dsn_http']);
             $params['dsn'] = \FFMVC\Helpers\DB::instance()->createDbDsn($params);
             $dbParams      = array_merge($dbParams, $params);
             $hive['db']    = $dbParams;
@@ -116,8 +115,7 @@ class App extends \Prefab
 
         // multiple-set of $hive array to $f3 hive
         $f3->mset($hive);
-
-        // CLI mode ends here
+        // non-CLI mode ends here
         if (empty($f3->get('CLI'))) {
             // set ini settings
             foreach ($ini as $value => $setting) {
