@@ -18,7 +18,7 @@ class Response extends \Prefab
      * @param array $params parameters for the http headers: ttl, origin, methods (GET, POST, PUT, DELETE)
      * @param bool  $output send the output headers and body? or return them?
      *
-     * @return array (array headers, string body)
+     * @return array<string,array|null|string>|null (array headers, string body)
      *
      * @see http://www.w3.org/TR/2008/WD-access-control-20080912/
      */

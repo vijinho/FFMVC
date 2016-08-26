@@ -107,7 +107,7 @@ class Notifications extends \Prefab
     /**
      * add a notification, default type is notification
      *
-     * @param string $notification
+     * @param null|string $notification
      * @param string $type
      */
     public static function add(string $notification, string $type = null)
@@ -147,7 +147,7 @@ class Notifications extends \Prefab
     /**
      * return notifications of given type or all types, return false if none, clearing stack
      *
-     * @param string $type
+     * @param null|string $type
      * @param bool $clear
      * @return boolean|array
      */
