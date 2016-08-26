@@ -138,28 +138,6 @@ class App extends \Prefab
                 }
             }
         });
-
-        // fix for f3 not populating $_GET when run on the command line
-        $uri         = $f3->get('SERVER.REQUEST_URI');
-        $querystring = preg_split('/&/', \UTF::instance()->substr($uri, 1 + \UTF::instance()->strpos($uri . '&', '?')));
-        $get         = [];
-        if (!empty($querystring) && count($querystring)) {
-            foreach ($querystring as $pair) {
-                if (0 == count($pair)) {
-                    continue;
-                }
-                $val = preg_split('/=/', $pair);
-
-                if (!empty($val) && count($val) == 2) {
-                    $k = $val[0];
-                    $v = $val[1];
-                    if (!empty($k) && !empty($v)) {
-                        $get[$k] = $v;
-                    }
-                }
-            }
-            $f3->set('GET', $get);
-        }
     }
 
     /**
