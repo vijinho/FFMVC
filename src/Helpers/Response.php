@@ -17,7 +17,7 @@ class Response extends \Prefab
      * @param mixed $data   input variable, takes origin, age, methods
      * @param array $params parameters for the http headers: ttl, origin, methods (GET, POST, PUT, DELETE)
      *
-     * @return void()
+     * @return void
      *
      * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
      * @see https://www.w3.org/TR/cors/
@@ -31,6 +31,9 @@ class Response extends \Prefab
 
         // set ttl
         $ttl = (int) array_key_exists('ttl', $params) ? $params['ttl'] : 0; // cache for $ttl seconds
+        if (empty($ttl)) {
+            $ttl = 0;
+        }
 
         $headers = array_merge($headers, [
             'Content-type'                     => 'application/json; charset=utf-8',
@@ -45,11 +48,7 @@ class Response extends \Prefab
         ]);
 
         // send the headers + data
-
-        if (empty($ttl)) {
-            $f3->expire(0);
-            $ttl = 0;
-        }
+        $f3->expire($ttl);
 
         // default status is 200 - OK
         $f3->status(array_key_exists('http_status', $params) ? $params['http_status'] : 200);
