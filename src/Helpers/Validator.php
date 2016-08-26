@@ -38,7 +38,7 @@ class Validator extends \GUMP
      *
      * @param mixed $input
      * @param array optinal $ruleset ot use class ruleset
-     * @return mixed
+     * @return bool|array
      */
     public function filter(array $input, array $ruleset = [])
     {
@@ -50,7 +50,7 @@ class Validator extends \GUMP
      *
      * @param array $input
      * @param array optinal $ruleset ot use class ruleset
-     * @return mixed
+     * @return bool|array
      */
     public function validate(array $input, array $ruleset = [])
     {
@@ -66,9 +66,9 @@ class Validator extends \GUMP
      * @param $value
      * @param array $param
      *
-     * @return type
+     * @return string
      */
-    public function filter_lower($value, $param = null)
+    public function filter_lower(string $value, array $param = null): string
     {
         return strtolower($value);
     }
@@ -82,9 +82,9 @@ class Validator extends \GUMP
      * @param $value
      * @param array $param
      *
-     * @return type
+     * @return string
      */
-    public function filter_upper($value, $param = null)
+    public function filter_upper(string $value, array $param = null): string
     {
         return strtoupper($value);
     }
@@ -98,10 +98,10 @@ class Validator extends \GUMP
      * @param $value
      * @param array $param
      *
-     * @return type
+     * @return string
      * @link https://fatfreeframework.com/utf-unicode-string-manager#ltrim
      */
-    public function filter_ltrim($value, $param = null)
+    public function filter_ltrim(string $value, array $param = null): string
     {
         return \UTF::instance()->ltrim($value);
     }
@@ -115,10 +115,10 @@ class Validator extends \GUMP
      * @param $value
      * @param array $param
      *
-     * @return type
+     * @return string
      * @link https://fatfreeframework.com/utf-unicode-string-manager#rtrim
      */
-    public function filter_rtrim($value, $param = null)
+    public function filter_rtrim(string $value, array $param = null): string
     {
         return \UTF::instance()->rtrim($value);
     }
@@ -132,10 +132,10 @@ class Validator extends \GUMP
      * @param $value
      * @param array $param
      *
-     * @return type
+     * @return string
      * @link https://fatfreeframework.com/utf-unicode-string-manager#trim
      */
-    public function filter_trim($value, $param = null)
+    public function filter_trim(string $value, array $param = null): string
     {
         return \UTF::instance()->trim($value);
     }
@@ -149,10 +149,10 @@ class Validator extends \GUMP
      * @param $value
      * @param array $param
      *
-     * @return type
+     * @return string
      * @link https://fatfreeframework.com/utf-unicode-string-manager#translate
      */
-    public function filter_translate($value, $param = null)
+    public function filter_translate(string $value, array $param = null): string
     {
         return \UTF::instance()->translate($value);
     }
@@ -166,10 +166,10 @@ class Validator extends \GUMP
      * @param $value
      * @param array $param
      *
-     * @return type
+     * @return string
      * @link https://fatfreeframework.com/utf-unicode-string-manager#emojify
      */
-    public function filter_emojify($value, $param = null)
+    public function filter_emojify(string $value, array $param = null): string
     {
         return \UTF::instance()->emojify($value);
     }
@@ -183,11 +183,117 @@ class Validator extends \GUMP
      * @param $value
      * @param array $param
      *
-     * @return type
+     * @return string
      * @link https://fatfreeframework.com/utf-unicode-string-manager#emojify
      */
-    public function filter_slug($value, $param = null)
+    public function filter_slug(string $value, array $param = null): string
     {
         return \Web::instance()->slug($value);
     }
+
+    /**
+     * Check whether the IP Address is Public
+     *
+     * Usage: '<index>' => 'valid_ip_public'
+     *
+     * @param string $field
+     * @param array  $input
+     * @param null   $param
+     *
+     * @return mixed
+     */
+    public function validate_valid_ip_public(string $field, array $input, $param = null)
+    {
+        if (!isset($input[$field]) || empty($input[$field])) {
+            return;
+        }
+        if (!\Audit::instance()->ispublic($input[$field])) {
+            return array(
+                'field' => $field,
+                'value' => $input[$field],
+                'rule' => __FUNCTION__,
+                'param' => $param,
+            );
+        }
+    }
+
+    /**
+     * Check whether the IP Address is NOT Public
+     *
+     * Usage: '<index>' => 'valid_ip_not_public'
+     *
+     * @param string $field
+     * @param array  $input
+     * @param null   $param
+     *
+     * @return mixed
+     */
+    public function validate_valid_ip_not_public(string $field, array $input, $param = null)
+    {
+        if (!isset($input[$field]) || empty($input[$field])) {
+            return;
+        }
+        if (\Audit::instance()->ispublic($input[$field])) {
+            return array(
+                'field' => $field,
+                'value' => $input[$field],
+                'rule' => __FUNCTION__,
+                'param' => $param,
+            );
+        }
+    }
+
+    /**
+     * Check whether the IP Address is Reserved
+     *
+     * Usage: '<index>' => 'valid_ip_reserved'
+     *
+     * @param string $field
+     * @param array  $input
+     * @param null   $param
+     *
+     * @return mixed
+     */
+    public function validate_valid_ip_reserved(string $field, array $input, $param = null)
+    {
+        if (!isset($input[$field]) || empty($input[$field])) {
+            return;
+        }
+        if (!\Audit::instance()->isreserved($input[$field])) {
+            return array(
+                'field' => $field,
+                'value' => $input[$field],
+                'rule' => __FUNCTION__,
+                'param' => $param,
+            );
+        }
+    }
+
+    /**
+     * Check whether the IP Address is Private or Reserved
+     *
+     * Usage: '<index>' => 'valid_ip_private'
+     *
+     * @param string $field
+     * @param array  $input
+     * @param null   $param
+     *
+     * @return mixed
+     */
+    public function validate_valid_ip_private(string $field, array $input, $param = null)
+    {
+        if (!isset($input[$field]) || empty($input[$field])) {
+            return;
+        }
+        if (!\Audit::instance()->isprivate($input[$field])) {
+            return array(
+                'field' => $field,
+                'value' => $input[$field],
+                'rule' => __FUNCTION__,
+                'param' => $param,
+            );
+        }
+    }
+
+
 }
