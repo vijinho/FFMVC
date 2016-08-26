@@ -63,12 +63,11 @@ class Validator extends \GUMP
      *  The callback function receives two arguments:
      *  The value to filter, and any parameters used in the filter rule. It should returned the filtered value.
      *
-     * @param $value
-     * @param array $param
-     *
+     * @param mixed $value
+     * @param mixed $param
      * @return string
      */
-    public function filter_lower(string $value, array $param = null): string
+    public function filter_lower($value, $param = null): string
     {
         return strtolower($value);
     }
@@ -79,12 +78,11 @@ class Validator extends \GUMP
      *  The callback function receives two arguments:
      *  The value to filter, and any parameters used in the filter rule. It should returned the filtered value.
      *
-     * @param $value
-     * @param array $param
-     *
+     * @param mixed $value
+     * @param mixed $param
      * @return string
      */
-    public function filter_upper(string $value, array $param = null): string
+    public function filter_upper($value, $param = null): string
     {
         return strtoupper($value);
     }
@@ -95,13 +93,12 @@ class Validator extends \GUMP
      * The callback function receives two arguments:
      * The value to filter, and any parameters used in the filter rule. It should returned the filtered value.
      *
-     * @param $value
-     * @param array $param
-     *
+     * @param mixed $value
+     * @param mixed $param
      * @return string
      * @link https://fatfreeframework.com/utf-unicode-string-manager#ltrim
      */
-    public function filter_ltrim(string $value, array $param = null): string
+    public function filter_ltrim($value, $param = null): string
     {
         return \UTF::instance()->ltrim($value);
     }
@@ -112,13 +109,12 @@ class Validator extends \GUMP
      * The callback function receives two arguments:
      * The value to filter, and any parameters used in the filter rule. It should returned the filtered value.
      *
-     * @param $value
-     * @param array $param
-     *
+     * @param mixed $value
+     * @param mixed $param
      * @return string
      * @link https://fatfreeframework.com/utf-unicode-string-manager#rtrim
      */
-    public function filter_rtrim(string $value, array $param = null): string
+    public function filter_rtrim($value, $param = null): string
     {
         return \UTF::instance()->rtrim($value);
     }
@@ -129,13 +125,12 @@ class Validator extends \GUMP
      * The callback function receives two arguments:
      * The value to filter, and any parameters used in the filter rule. It should returned the filtered value.
      *
-     * @param $value
-     * @param array $param
-     *
+     * @param mixed $value
+     * @param mixed $param
      * @return string
      * @link https://fatfreeframework.com/utf-unicode-string-manager#trim
      */
-    public function filter_trim(string $value, array $param = null): string
+    public function filter_trim($value, $param = null): string
     {
         return \UTF::instance()->trim($value);
     }
@@ -146,13 +141,12 @@ class Validator extends \GUMP
      * The callback function receives two arguments:
      * The value to filter, and any parameters used in the filter rule. It should returned the filtered value.
      *
-     * @param $value
-     * @param array $param
-     *
+     * @param mixed $value
+     * @param mixed $param
      * @return string
      * @link https://fatfreeframework.com/utf-unicode-string-manager#translate
      */
-    public function filter_translate(string $value, array $param = null): string
+    public function filter_translate($value, $param = null): string
     {
         return \UTF::instance()->translate($value);
     }
@@ -163,13 +157,12 @@ class Validator extends \GUMP
      * The callback function receives two arguments:
      * The value to filter, and any parameters used in the filter rule. It should returned the filtered value.
      *
-     * @param $value
-     * @param array $param
-     *
+     * @param mixed $value
+     * @param mixed $param
      * @return string
      * @link https://fatfreeframework.com/utf-unicode-string-manager#emojify
      */
-    public function filter_emojify(string $value, array $param = null): string
+    public function filter_emojify($value, $param = null): string
     {
         return \UTF::instance()->emojify($value);
     }
@@ -180,13 +173,12 @@ class Validator extends \GUMP
      * The callback function receives two arguments:
      * The value to filter, and any parameters used in the filter rule. It should returned the filtered value.
      *
-     * @param $value
-     * @param array $param
-     *
+     * @param mixed $value
+     * @param mixed $param
      * @return string
      * @link https://fatfreeframework.com/utf-unicode-string-manager#emojify
      */
-    public function filter_slug(string $value, array $param = null): string
+    public function filter_slug($value, $param = null): string
     {
         return \Web::instance()->slug($value);
     }
@@ -225,7 +217,6 @@ class Validator extends \GUMP
      * @param string $field
      * @param array  $input
      * @param null   $param
-     *
      * @return mixed
      */
     public function validate_valid_ip_not_public(string $field, array $input, $param = null)
@@ -251,7 +242,6 @@ class Validator extends \GUMP
      * @param string $field
      * @param array  $input
      * @param null   $param
-     *
      * @return mixed
      */
     public function validate_valid_ip_reserved(string $field, array $input, $param = null)
@@ -277,7 +267,6 @@ class Validator extends \GUMP
      * @param string $field
      * @param array  $input
      * @param null   $param
-     *
      * @return mixed
      */
     public function validate_valid_ip_private(string $field, array $input, $param = null)
@@ -294,6 +283,5 @@ class Validator extends \GUMP
             );
         }
     }
-
 
 }
