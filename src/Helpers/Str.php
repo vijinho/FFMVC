@@ -75,7 +75,7 @@ class Str extends \Prefab
      * @param string $hashed_password a hashed password
      * @param string $string to salt
      * @param string $pepper string pepper to add to the salted string for extra security
-     * @return boolean success on match
+     * @return string success on match
      */
     public static function passwordVerify(string $hashed_password, string $string, string $pepper = ''): string
     {
