@@ -126,15 +126,13 @@ class App extends \Prefab
             return;
         }
 
+        // set ini settings
         // log errors if run on command line
-        $ini = array_merge($ini, [
+        foreach (array_merge($ini, [
             'display_errors' => 'On',
             'error_log'      => 'On',
             'html_errors'    => 'Off',
-        ]);
-
-        // set ini settings
-        foreach ($ini as $value => $setting) {
+        ]) as $value => $setting) {
             ini_set($value, $setting);
         }
 
