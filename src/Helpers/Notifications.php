@@ -31,7 +31,7 @@ class Notifications extends \Prefab
     public static function init(bool $saveState = true, array $types = [])
     {
         $f3 = \Base::instance();
-        $cli = (PHP_SAPI == 'cli');
+        $cli = $f3->get('CLI');
         $notifications = $f3->get('notifications');
 
         if (empty($notifications)) {
@@ -80,7 +80,8 @@ class Notifications extends \Prefab
      */
     public static function saveState(bool $boolean = true): bool
     {
-        if (PHP_SAPI !== 'cli') {
+        $f3 = \Base::instance();
+        if (empty($f3->get('CLI'))) {
             $f3 = \Base::instance();
             $f3->set('notifications_save_state', $boolean);
 
@@ -93,7 +94,8 @@ class Notifications extends \Prefab
 
     public function __destruct()
     {
-        if (PHP_SAPI !== 'cli') {
+        $f3 = \Base::instance();
+        if (empty($f3->get('CLI'))) {
             $f3 = \Base::instance();
 
             // save persistent notifications

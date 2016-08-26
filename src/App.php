@@ -111,7 +111,7 @@ class App extends \Prefab
         ini_set('user', $f3->get('email.user'));
         ini_set('password', $f3->get('email.pass'));
 
-        if (PHP_SAPI !== 'cli') {
+        if (empty($f3->get('CLI'))) {
             return;
         }
 
