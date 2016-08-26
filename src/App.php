@@ -126,7 +126,7 @@ class App extends \Prefab
 
                 // detailed error notifications because it's not public
             $errorMessage = sprintf("Trace: %s\n\nException %d: %s\n%s\n",
-                trim(strip_tags($e['trace'])), $e['code'], $e['status'], $e['text']
+                print_r($f3->trace(null, false), 1), $e['code'], $e['status'], $e['text']
             );
 
             echo $errorMessage;
