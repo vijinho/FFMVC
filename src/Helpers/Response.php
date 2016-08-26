@@ -17,7 +17,7 @@ class Response extends \Prefab
      * @param mixed $data   input variable, takes origin, age, methods
      * @param array $params parameters for the http headers: ttl, origin, methods (GET, POST, PUT, DELETE)
      *
-     * @return array<string,array|null|string>|null (array headers, string body)
+     * @return void()
      *
      * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
      * @see https://www.w3.org/TR/cors/
