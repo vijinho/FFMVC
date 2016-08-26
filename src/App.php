@@ -35,15 +35,17 @@ class App extends \Prefab
             $f3->config('config/config.ini');
         }
 
+        // hive vars we are setting
+        $hive = [];
+
         // set home directory for project
-        $f3->set('HOMEDIR', realpath($f3->get('SERVER.DOCUMENT_ROOT') . '/../'));
+        $hive['HOMEDIR'] = realpath($f3->get('SERVER.DOCUMENT_ROOT') . '/../');
 
         // make sure directories are full, not relative path
         foreach (['LOGS', 'TEMP', 'UPLOADS'] as $key) {
             $dir = $f3->get($key);
             if (!empty($dir)) {
-                $dir = realpath($dir);
-                $f3->set($key, $dir . '/');
+                $hive[$key] = realpath($dir) . '/';
             }
         }
 
@@ -63,33 +65,32 @@ class App extends \Prefab
                     $langDir = '';
                     if ('UI' == $key) {
                         $langDir = 'templates/' . $language . '/' . $dir;
-                        $dir     = 'templates/en/' . $dir;
                         if (!file_exists($langDir)) {
                             unset($langDir);
                         }
+                        $dir     = 'templates/en/' . $dir;
                     }
-                    if (!empty($langDir)) {
-                        $dirs[$k] = realpath($langDir) . '/' . ';' . realpath($dir) . '/';
-                    } else {
-                        $dirs[$k] = realpath($dir) . '/';
-                    }
+                    $dirs[$k] = empty($langDir) ? realpath($dir) . '/'
+                        : realpath($langDir) . '/' . ';' . realpath($dir) . '/';
                 }
-                $f3->set($key, join(';', $dirs));
+                $hive[$key] = join(';', $dirs);
             }
         }
 
             // enable full logging if not production
+        $ini     = [];
         $logfile = $f3->get('log.file');
         if (empty($logfile)) {
-            $f3->set('log.file', '/dev/null');
+            $hive['log']['file'] = '/dev/null';
         } elseif ('production' !== $f3->get('app.env')) {
-            ini_set('log_errors', 'On');
-            $logfile = $f3->get('LOGS') . $logfile;
-            $f3->set('logfile', $logfile);
-            ini_set('error_log', $logfile);
-            ini_set('error_reporting', -1);
-            ini_set('ignore_repeated_errors', 'On');
-            ini_set('ignore_repeated_source', 'On');
+            $hive['log']['file'] = $logfile;
+            $ini                 = array_merge($ini, [
+                'log_errors'             => 'On',
+                'error_log'              => $logfile,
+                'error_reporting'        => -1,
+                'ignore_repeated_errors' => 'On',
+                'ignore_repeated_source' => 'On',
+            ]);
         }
 
         // parse params for http-style dsn
@@ -101,32 +102,49 @@ class App extends \Prefab
             $params        = \FFMVC\Helpers\DB::instance()->parseHttpDsn($httpDSN);
             $params['dsn'] = \FFMVC\Helpers\DB::instance()->createDbDsn($params);
             $dbParams      = array_merge($dbParams, $params);
-            $f3->set('db', $dbParams);
+            $hive['db']    = $dbParams;
         }
-
         // setup outgoing email server for php mail command
-        ini_set('SMTP', $f3->get('email.host'));
-        ini_set('sendmail_from', $f3->get('email.from'));
-        ini_set('smtp_port', $f3->get('email.port'));
-        ini_set('user', $f3->get('email.user'));
-        ini_set('password', $f3->get('email.pass'));
+        $email = $f3->get('email'); // email settings
+        $ini   = array_merge($ini, [
+            'SMTP'          => $email['host'],
+            'sendmail_from' => $email['from'],
+            'smtp_port'     => $email['port'],
+            'user'          => $email['user'],
+            'password'      => $email['pass'],
+        ]);
 
+        // multiple-set of $hive array to $f3 hive
+        $f3->mset($hive);
+
+        // CLI mode ends here
         if (empty($f3->get('CLI'))) {
+            // set ini settings
+            foreach ($ini as $value => $setting) {
+                ini_set($value, $setting);
+            }
             return;
         }
 
         // log errors if run on command line
-        ini_set('display_errors', 'On');
-        ini_set('error_log', 'On');
-        ini_set('html_errors', 'Off');
+        $ini = array_merge($ini, [
+            'display_errors' => 'On',
+            'error_log'      => 'On',
+            'html_errors'    => 'Off',
+        ]);
+
+        // set ini settings
+        foreach ($ini as $value => $setting) {
+            ini_set($value, $setting);
+        }
 
         // set default error handler output for CLI mode
         $f3->set('ONERROR', function ($f3) {
-            $e = $f3->get('ERROR');
+            $error = $f3->get('ERROR');
 
                 // detailed error notifications because it's not public
             $errorMessage = sprintf("Trace: %s\n\nException %d: %s\n%s\n",
-                print_r($f3->trace(null, false), 1), $e['code'], $e['status'], $e['text']
+                print_r($f3->trace(null, false), 1), $error['code'], $error['status'], $error['text']
             );
 
             echo $errorMessage;
@@ -148,16 +166,11 @@ class App extends \Prefab
     public static function finish()
     {
         // log script execution time if debugging
-        $f3    = \Base::instance();
-        $debug = $f3->get('DEBUG');
+        $f3     = \Base::instance();
+        $debug  = $f3->get('DEBUG');
+        $logger = \Registry::exists('logger') ? \Registry::get('logger') : null;
 
-        if (\Registry::exists('logger')) {
-            $logger = \Registry::get('logger');
-        } else {
-            $logger = null;
-        }
-
-        if (!empty($logger) && is_object($logger) && $debug || 'production' !== $f3->get('app.env')) {
+        if ('production' !== $f3->get('app.env') || !empty($logger) && $debug) {
 
             // log database transactions if level 3
             $db = \Registry::get('db');
@@ -178,8 +191,8 @@ class App extends \Prefab
 
         // http://php.net/manual/en/function.ob-end-flush.php
         while (ob_get_level()) {
-            @ob_end_flush();
-            @flush();
+            ob_end_flush();
+            flush();
         }
     }
 }
