@@ -110,7 +110,7 @@ class Notifications extends \Prefab
      * add a notification, default type is notification
      *
      * @param null|string $notification
-     * @param string $type
+     * @param null|string $type
      */
     public static function add(string $notification, string $type = null)
     {

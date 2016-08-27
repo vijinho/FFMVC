@@ -192,7 +192,7 @@ class Validator extends \GUMP
      * @param array  $input
      * @param null|array $param
      *
-     * @return mixed
+     * @return null|array
      */
     public function validate_valid_ip_public(string $field, array $input, $param = null)
     {
@@ -217,7 +217,7 @@ class Validator extends \GUMP
      * @param string $field
      * @param array  $input
      * @param null|array $param
-     * @return mixed
+     * @return null|array
      */
     public function validate_valid_ip_not_public(string $field, array $input, $param = null)
     {
@@ -242,7 +242,7 @@ class Validator extends \GUMP
      * @param string $field
      * @param array  $input
      * @param null|array $param
-     * @return mixed
+     * @return null|array
      */
     public function validate_valid_ip_reserved(string $field, array $input, $param = null)
     {
@@ -267,7 +267,7 @@ class Validator extends \GUMP
      * @param string $field
      * @param array  $input
      * @param null|array $param
-     * @return mixed
+     * @return null|array
      */
     public function validate_valid_ip_private(string $field, array $input, $param = null)
     {

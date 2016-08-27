@@ -17,13 +17,34 @@ This small library of classes can be used to start your own project based on a c
 ## src/Helpers
 
 - `DB.php` - Methods for parsing a http-style DSN and/or db params from a config array (or file) and return a connection to the database.
-- `Notifications.php` - A general class to store/retrieve user notification messages in an array to the f3 hive.
+- `Notifications.php` - A general class to store/retrieve user notification (flash) messages in an array to the f3 hive.
 - `Response.php` - A class to return a JSON-encoded HTTP message.
-- `Str.php` - Some general string utility functions.
-- `Time.php` - Date/time utility methods
+- `Str.php` - General string utility functions.
+- `Time.php` - Simple date/time utility methods
 - `Url.php` - General helper methods to create internal/external links.
-- `Validator.php` - An extension to [GUMP](https://github.com/Wixel/GUMP) using some f3 string methods.
-- `Mail.php` - A wrapper to return a pre-configured instance of [PHPMailer](https://github.com/PHPMailer/PHPMailer) based on f3 settings or pre-configured f3 built-in SMTP object 
+- `Mail.php` - A wrapper to return a pre-configured instance of [PHPMailer](https://github.com/PHPMailer/PHPMailer) based on f3 settings or pre-configured f3 built-in SMTP object
+
+### Helpers\Validator
+
+- `Validator.php` - An extension to [GUMP](https://github.com/Wixel/GUMP) using mainly f3 string methods.
+
+#### Filters
+
+ - filter_lower
+ - filter_upper
+ - filter_ltrim
+ - filter_rtrim
+ - filter_trim
+ - filter_translate
+ - filter_emojify
+ - filter_slug
+
+#### Validators
+
+ - validate_valid_ip_public
+ - validate_valid_ip_not_public
+ - validate_valid_ip_reserved
+ - validate_valid_ip_private
 
 Vijay Mahrra
 http://about.me/vijay.mahrra
