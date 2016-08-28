@@ -85,12 +85,14 @@ class Str extends \Prefab
 
     /**
      * Generate name based md5 UUID (version 3).
+     *
+     * @param null|int $len limit the length
      * @example '7e57d004-2b97-0e7a-b45f-5387367791cd'
      * @copyright Copyright (c) 2011 François Zaninotto and others
      * @url https://github.com/fzaninotto/Faker
      * @return string $uuid
      */
-    public static function uuid(): string
+    public static function uuid($len = null): string
     {
         // fix for compatibility with 32bit architecture; seed range restricted to 62bit
         $seed = mt_rand(0, 2147483647) . '#' . mt_rand(0, 2147483647);
@@ -134,7 +136,7 @@ class Str extends \Prefab
             $byte[15]
         );
 
-        return $uuid;
+        return empty($len) ? $uuid : substr($uuid, 0, $len);
     }
 
     /**
