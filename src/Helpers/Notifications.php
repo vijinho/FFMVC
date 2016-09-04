@@ -27,8 +27,9 @@ class Notifications extends \Prefab
      *
      * @param bool $saveState
      * @param array $types
+     * @return array $notifications
      */
-    public static function init(bool $saveState = true, array $types = [])
+    public static function init(bool $saveState = true, array $types = []): array
     {
         $f3 = \Base::instance();
         $cli = $f3->get('CLI');
@@ -53,6 +54,8 @@ class Notifications extends \Prefab
         if (!$cli) {
             $f3->set('notifications_save_state', $saveState); // save notifications in session?
         }
+
+        return $notifications;
     }
 
 
@@ -116,6 +119,9 @@ class Notifications extends \Prefab
     {
         $f3 = \Base::instance();
         $notifications = $f3->get('notifications');
+        if (null === $notifications) {
+            $notifications = self::init();
+        }
         $type = (empty($type) || !in_array($type, static::$types)) ? 'info' : $type;
 
         // don't repeat notifications!
