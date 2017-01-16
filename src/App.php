@@ -50,7 +50,7 @@ class App extends \Prefab
         }
 
         // these take multiple paths
-        $language = $f3->get('LANGUAGE');
+	$language = substr($f3->get('LANGUAGE'),0,2);
         foreach (['LOCALES', 'UI'] as $key) {
             $paths = $f3->get($key);
                 // remove any invalid dirs
