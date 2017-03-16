@@ -16,7 +16,7 @@ class Notifications extends \Prefab
 
     public static $types = [
         'success',
-        'error',
+        'danger',
         'warning',
         'info',
         'debug'
