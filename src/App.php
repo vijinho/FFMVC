@@ -169,11 +169,10 @@ class App extends \Prefab
         if ('production' !== $f3->get('app.env') || !empty($logger) && $debug) {
 
             // log database transactions if level 3
-            $db = \Registry::get('db');
-
+            $db = \Registry::exists('db') ? \Registry::get('db') : null;
             if (3 <= $debug &&
                 method_exists($logger, 'write') &&
-                method_exists($db, 'log')) {
+                !empty($db) && is_object($db) && method_exists($db, 'log')) {
                 $logger->write($db->log(), $f3->get('log.date'));
             }
 
