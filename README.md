@@ -47,5 +47,5 @@ This small library of classes can be used to start your own project based on a c
  - validate_valid_ip_private
 
 Vijay Mahrra
-http://about.me/vijay.mahrra
+http://www.urunu.com
 ----
